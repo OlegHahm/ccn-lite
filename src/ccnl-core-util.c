@@ -701,7 +701,7 @@ ccnl_prefix_addChunkNum(struct ccnl_prefix_s *prefix, unsigned int chunknum)
                 return -1;
             if (prefix->chunknum)
                 ccnl_free(prefix->chunknum);
-            prefix->chunknum = (unsigned int*) ccnl_malloc(sizeof(int));
+            prefix->chunknum = (int*) ccnl_malloc(sizeof(int));
             *prefix->chunknum = chunknum;
         }
         break;
@@ -720,7 +720,7 @@ ccnl_prefix_addChunkNum(struct ccnl_prefix_s *prefix, unsigned int chunknum)
                 return -1;
             if (prefix->chunknum)
                 ccnl_free(prefix->chunknum);
-            prefix->chunknum = (unsigned int*) ccnl_malloc(sizeof(int));
+            prefix->chunknum = (int*) ccnl_malloc(sizeof(int));
             *prefix->chunknum = chunknum;
         }
         break;

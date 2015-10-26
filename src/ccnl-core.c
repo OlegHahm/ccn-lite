@@ -258,7 +258,7 @@ ccnl_interface_enqueue(void (tx_done)(void*, int, int), struct ccnl_face_s *f,
 {
     struct ccnl_txrequest_s *r;
 
-    DEBUGMSG_CORE(TRACE, "enqueue interface=%p buf=%p len=%d (qlen=%d)\n",
+    DEBUGMSG_CORE(TRACE, "enqueue interface=%p buf=%p len=%zd (qlen=%d)\n",
                   (void*)ifc, (void*)buf,
                   buf ? buf->datalen : -1, ifc ? ifc->qlen : -1);
 
@@ -347,7 +347,7 @@ ccnl_face_enqueue(struct ccnl_relay_s *ccnl, struct ccnl_face_s *to,
                  struct ccnl_buf_s *buf)
 {
     struct ccnl_buf_s *msg;
-    DEBUGMSG_CORE(TRACE, "enqueue face=%p (id=%d.%d) buf=%p len=%d\n",
+    DEBUGMSG_CORE(TRACE, "enqueue face=%p (id=%d.%d) buf=%p len=%zd\n",
              (void*) to, ccnl->id, to->faceid, (void*) buf, buf ? buf->datalen : -1);
 
     for (msg = to->outq; msg; msg = msg->next) // already in the queue?
