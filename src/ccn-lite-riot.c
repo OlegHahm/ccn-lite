@@ -1,0 +1,304 @@
+/*
+ * @f ccn-lite-riot.c
+ * @b RIOT adaption layer
+ *
+ * Copyright (C) 2011-14, Christian Tschudin, University of Basel
+ * Copyright (C) 2015, Oliver Hahm, INRIA
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ *
+ * File history:
+ * 2015-10-26 created (based on ccn-lite-minimalrelay.c)
+ */
+
+#include <assert.h>
+#include <ctype.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <getopt.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
+
+#include <sys/ioctl.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/un.h>
+
+#include <arpa/inet.h>
+#include <netinet/in.h>
+
+
+/* RIOT specific includes */
+#include "kernel_types.h"
+#include "net/gnrc/netreg.h"
+#include "net/gnrc/netif/hdr.h"
+#include "net/gnrc/netapi.h"
+#include "net/packet.h"
+#include "ccn-lite-riot.h"
+
+#include "ccnl-os-time.c"
+// ----------------------------------------------------------------------
+// "replacement lib"
+
+#define free_2ptr_list(a,b)     ccnl_free(a), ccnl_free(b)
+#define free_3ptr_list(a,b,c)   ccnl_free(a), ccnl_free(b), ccnl_free(c)
+#define free_4ptr_list(a,b,c,d) ccnl_free(a), ccnl_free(b), ccnl_free(c), ccnl_free(d);
+
+#define free_prefix(p)  do{ if(p) \
+                free_4ptr_list(p->bytes,p->comp,p->complen,p); } while(0)
+#define free_content(c) do{ /* free_prefix(c->name); */ free_packet(c->pkt); \
+                        ccnl_free(c); } while(0)
+
+#define ccnl_nfn_monitor(a,b,c,d,e)     do{}while(0)
+
+/* TODO: pass received content to upper layer (application */
+#define ccnl_app_RX(x,y)                do{}while(0)
+
+#define compute_ccnx_digest(b) NULL
+#define local_producer(...)             0
+
+//----------------------------------------------------------------------
+#define QUEUE_SIZE     (8)
+static msg_t _msg_queue[QUEUE_SIZE];
+
+#include "ccnl-defs.h"
+#include "ccnl-core.h"
+
+void free_packet(struct ccnl_pkt_s *pkt);
+
+struct ccnl_interest_s* ccnl_interest_remove(struct ccnl_relay_s *ccnl,
+                     struct ccnl_interest_s *i);
+int ccnl_pkt2suite(unsigned char *data, int len, int *skip);
+
+char* ccnl_prefix_to_path_detailed(struct ccnl_prefix_s *pr,
+                    int ccntlv_skip, int escape_components, int call_slash);
+#define ccnl_prefix_to_path(P) ccnl_prefix_to_path_detailed(P, 1, 0, 0)
+
+char* ccnl_addr2ascii(sockunion *su);
+void ccnl_core_addToCleanup(struct ccnl_buf_s *buf);
+const char* ccnl_suite2str(int suite);
+bool ccnl_isSuite(int suite);
+
+// ----------------------------------------------------------------------
+struct ccnl_relay_s theRelay;
+extern int debug_level;
+void
+ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
+           sockunion *dest, struct ccnl_buf_s *buf);
+
+extern struct ccnl_buf_s* ccnl_buf_new(void *data, int len);
+#include "ccnl-core.c"
+
+gnrc_netreg_entry_t ccnl_riot_ne;
+// ----------------------------------------------------------------------
+struct ccnl_buf_s*
+ccnl_buf_new(void *data, int len)
+{
+    struct ccnl_buf_s *b = ccnl_malloc(sizeof(*b) + len);
+
+    if (!b)
+        return NULL;
+    b->next = NULL;
+    b->datalen = len;
+    if (data)
+        memcpy(b->data, data, len);
+    return b;
+}
+
+int
+ccnl_open_netif(kernel_pid_t eventloop_pid, kernel_pid_t if_pid, gnrc_nettype_t netreg_type)
+{
+    /* configure the interface to use the specified nettype protocol */
+    gnrc_netapi_set(if_pid, NETOPT_PROTO, 0, &netreg_type, sizeof(gnrc_nettype_t));
+    /* register for this nettype */
+    ccnl_riot_ne.demux_ctx =  GNRC_NETREG_DEMUX_CTX_ALL;
+    ccnl_riot_ne.pid = eventloop_pid;
+    return gnrc_netreg_register(netreg_type, &ccnl_riot_ne);
+}
+
+int
+ccnl_open_udpdev(int port)
+{
+    int s;
+    struct sockaddr_in6 si;
+
+    s = socket(AF_INET6, SOCK_DGRAM, 0);
+    if (s < 0) {
+        perror("udp socket");
+        return -1;
+    }
+
+    si.sin6_addr = in6addr_any;
+    si.sin6_port = htons(port);
+    si.sin6_family = AF_INET6;
+    if (bind(s, (struct sockaddr *)&si, sizeof(si)) < 0) {
+        perror("udp sock bind");
+        return -1;
+    }
+
+    return s;
+}
+
+void
+ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
+           sockunion *dest, struct ccnl_buf_s *buf)
+{
+    (void) ccnl;
+    int rc;
+    DEBUGMSG(TRACE, "ccnl_ll_TX %d bytes\n", buf ? buf->datalen : -1);
+    switch(dest->sa.sa_family) {
+#ifdef USE_IPV6
+    case AF_INET6:
+        rc = sendto(ifc->sock, buf->data, buf->datalen, 0, (struct sockaddr*)
+                &(dest)->ip6, sizeof(struct sockaddr_in6));
+        char str[INET6_ADDRSTRLEN];
+        DEBUGMSG(DEBUG, "udp sendto %s/%d returned %d\n",
+                 inet_ntop(AF_INET6, dest->ip6.sin6_addr.s6_addr, str,
+                     INET6_ADDRSTRLEN), ntohs(dest->ip6.sin6_port), rc);
+        break;
+#endif
+    case AF_PACKET: {
+        gnrc_netif_hdr_t *nethdr;
+        gnrc_pktsnip_t *pkt= gnrc_pktbuf_add(NULL, buf->data, buf->datalen, GNRC_NETTYPE_UNDEF);
+        pkt = gnrc_pktbuf_add(pkt, NULL, sizeof(gnrc_netif_hdr_t) + 8, GNRC_NETTYPE_NETIF);
+        nethdr = (gnrc_netif_hdr_t *)pkt->data;
+        gnrc_netif_hdr_init(nethdr, 8, 8);
+        gnrc_netif_hdr_set_dst_addr(nethdr, dest->ieee802154.sll_addr, 8);
+        /* TODO: not always use broadcast */
+        nethdr->flags = GNRC_NETIF_HDR_FLAGS_BROADCAST;
+        /* TODO: implement gnrc netapi call here */
+        gnrc_netapi_send(ifc->if_pid, pkt);
+        break;
+        }
+    default:
+        DEBUGMSG(WARNING, "unknown transport\n");
+        break;
+    }
+    (void) rc; // just to silence a compiler warning (if USE_DEBUG is not set)
+}
+
+
+void ccnl_minimalrelay_ageing(void *relay, void *aux)
+{
+    ccnl_do_ageing(relay, aux);
+    ccnl_set_timer(SEC_IN_USEC, ccnl_minimalrelay_ageing, relay, 0);
+}
+
+void
+ccnl_event_loop(struct ccnl_relay_s *ccnl)
+{
+    int i;
+    //int maxfd = -1;
+    unsigned sock_count = 0;
+    fd_set readfs, writefs;
+
+    msg_init_queue(_msg_queue, QUEUE_SIZE);
+
+    /* TODO: re-enable for socket support
+    for (i = 0; i < ccnl->ifcount; i++) {
+        if (ccnl->ifs[i].sock > maxfd) {
+            maxfd = ccnl->ifs[i].sock;
+            if (ccnl->ifs[i].sock > 0) {
+                sock_count++;
+            }
+        }
+    }
+    maxfd++;
+
+    if (sock_count > 0) {
+        FD_ZERO(&readfs);
+        FD_ZERO(&writefs);
+    }
+    */
+
+    puts("starting netif event loop");
+    while(!ccnl->halt_flag) {
+        long timeout;
+
+        if (sock_count > 0) {
+            for (i = 0; i < ccnl->ifcount; i++) {
+                FD_SET(ccnl->ifs[i].sock, &readfs);
+                if (ccnl->ifs[i].qlen > 0)
+                    FD_SET(ccnl->ifs[i].sock, &writefs);
+                else
+                    FD_CLR(ccnl->ifs[i].sock, &writefs);
+            }
+        }
+
+        timeout = ccnl_run_events();
+        (void) timeout;
+        if (sock_count > 0) {
+            puts("Sockets are not yet implemented");
+            return;
+        }
+        else {
+            msg_t m;
+            if (xtimer_msg_receive_timeout(&m, SEC_IN_USEC) >= 0) {
+                printf("received message of type %" PRIu16 "\n", m.type);
+                for (i = 0; i < ccnl->ifcount; i++) {
+                    if (ccnl->ifs[i].if_pid == m.sender_pid) {
+                        break;
+                    }
+                }
+                if (i == ccnl->ifcount) {
+                    puts("No matching CCN interface found, skipping message");
+                    continue;
+                }
+                gnrc_pktsnip_t *ccn_pkt;
+                gnrc_pktsnip_t *pkt = (gnrc_pktsnip_t *)m.content.ptr;
+                LL_SEARCH_SCALAR(pkt, ccn_pkt, type, GNRC_NETTYPE_CCN);
+                sockunion su;
+                memset(&su, 0, sizeof(su));
+                su.sa.sa_family = AF_PACKET;
+
+                ccnl_core_RX(ccnl, i, ccn_pkt->data, ccn_pkt->size, &su.sa, sizeof(su));
+            }
+            else {
+                for (i = 0; i < ccnl->ifcount; i++) {
+                    if (ccnl->ifs[i].qlen > 0) {
+                        puts("Sending instead");
+                        ccnl_interface_CTS(&theRelay, &theRelay.ifs[i]);
+                    }
+                }
+            }
+        }
+        /*
+        rc = select(maxfd, &readfs, &writefs, NULL, timeout);
+        if (rc < 0) {
+            perror("select(): ");
+            exit(EXIT_FAILURE);
+        }
+        for (i = 0; i < ccnl->ifcount; i++) {
+            if (FD_ISSET(ccnl->ifs[i].sock, &readfs)) {
+                sockunion src_addr;
+                socklen_t addrlen = sizeof(sockunion);
+                unsigned char buf[CCNL_MAX_PACKET_SIZE];
+                int len;
+                if ((len = recvfrom(ccnl->ifs[i].sock, buf, sizeof(buf), 0,
+                                (struct sockaddr*) &src_addr, &addrlen)) > 0)
+                    ccnl_core_RX(ccnl, i, buf, len, &src_addr.sa, sizeof(src_addr.ip6));
+            }
+            if (FD_ISSET(ccnl->ifs[i].sock, &writefs))
+                ccnl_interface_CTS(&theRelay, &theRelay.ifs[0]);
+        }
+        */
+    }
+}
+
