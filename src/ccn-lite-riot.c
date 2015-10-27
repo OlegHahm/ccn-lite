@@ -269,8 +269,8 @@ ccnl_run_events(void)
 
 // ----------------------------------------------------------------------
 
-int debug_level;
 struct ccnl_relay_s theRelay;
+int debug_level;
 
 #include "ccnl-core.c"
 
@@ -281,7 +281,7 @@ int
 ccnl_open_udpdev(int port)
 {
     int s;
-    struct sockaddr_in si;
+    struct sockaddr_in6 si;
 
     s = socket(AF_INET6, SOCK_DGRAM, 0);
     if (s < 0) {
@@ -289,9 +289,9 @@ ccnl_open_udpdev(int port)
         return -1;
     }
 
-    si.sin_addr.s_addr = INADDR_ANY;
-    si.sin_port = htons(port);
-    si.sin_family = AF_INET6;
+    si.sin6_addr = in6addr_any;
+    si.sin6_port = htons(port);
+    si.sin6_family = AF_INET6;
     if (bind(s, (struct sockaddr *)&si, sizeof(si)) < 0) {
         perror("udp sock bind");
         return -1;
