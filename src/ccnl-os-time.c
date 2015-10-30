@@ -22,8 +22,10 @@
  *   ccnl_timer_s to the '#ifndef CCNL_LINUXKERNEL' section
  */
 
+#include "ccnl-headers.h"
 // ----------------------------------------------------------------------
 #ifdef CCNL_ARDUINO
+
 
 // typedef int time_t;
 #define Hz 1000
@@ -58,7 +60,7 @@ timestamp(void)
 
 /* this is a workaround for missing gettimeofday in RIOT */
 #ifdef CCNL_RIOT
-void
+int
 gettimeofday(struct timeval *tv, void *dummy)
 {
     (void) dummy;
@@ -67,6 +69,8 @@ gettimeofday(struct timeval *tv, void *dummy)
 
     tv->tv_sec = now.seconds;
     tv->tv_usec = now.microseconds;
+
+    return 0;
 }
 #endif
 
@@ -123,7 +127,7 @@ timestamp(void)
 #endif // CCNL_UNIX
 
 
-#if defined(CCNL_UNIX) || defined (CCNL_ARDUINO)
+#if defined(CCNL_UNIX) || defined (CCNL_RIOT) || defined (CCNL_ARDUINO)
 // ----------------------------------------------------------------------
 
 struct ccnl_timer_s {
@@ -152,7 +156,7 @@ timevaldelta(struct timeval *a, struct timeval *b) {
 }
 
 void*
-ccnl_set_timer(uint32_t usec, void (*fct)(void *aux1, void *aux2),
+ccnl_set_timer(uint64_t usec, void (*fct)(void *aux1, void *aux2),
                  void *aux1, void *aux2)
 {
     struct ccnl_timer_s *t, **pp;
@@ -285,7 +289,7 @@ ccnl_rem_timer(void *p)
 // "looper": serves all pending events and returns the number of microseconds
 // when the next event should be triggered.
 int
-ccnl_run_events()
+ccnl_run_events(void)
 {
     static struct timeval now;
     long usec;
