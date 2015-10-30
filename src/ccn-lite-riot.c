@@ -47,12 +47,7 @@
 /* RIOT specific includes */
 #include "log.h"
 
-#undef USE_NFN
-
-#define USE_IPV6
-#define USE_SUITE_NDNTLV
-#define NEEDS_PREFIX_MATCHING
-
+#include "ccn-lite-riot.h"
 // ----------------------------------------------------------------------
 // "replacement lib"
 
@@ -303,11 +298,11 @@ ccnl_open_udpdev(int port)
 void ccnl_minimalrelay_ageing(void *relay, void *aux)
 {
     ccnl_do_ageing(relay, aux);
-    ccnl_set_timer(1000000, ccnl_minimalrelay_ageing, relay, 0);
+    ccnl_set_timer(SEC_IN_USEC, ccnl_minimalrelay_ageing, relay, 0);
 }
 
 void
-ccnl_io_loop(struct ccnl_relay_s *ccnl)
+ccnl_event_loop(struct ccnl_relay_s *ccnl)
 {
     int i, maxfd = -1, rc;
     fd_set readfs, writefs;
