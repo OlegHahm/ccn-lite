@@ -97,6 +97,7 @@
 
 #define ccnl_nfn_monitor(a,b,c,d,e)     do{}while(0)
 
+/* TODO: pass received content to upper layer (application */
 #define ccnl_app_RX(x,y)                do{}while(0)
 
 #define ccnl_ll_TX(r,i,a,b)             sendto(i->sock,b->data,b->datalen,r?0:0,(struct sockaddr*)&(a)->ip6,sizeof(struct sockaddr_in6))
