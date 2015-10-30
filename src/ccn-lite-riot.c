@@ -145,6 +145,7 @@ ccnl_buf_new(void *data, int len)
     return b;
 }
 
+#if 0
 // ----------------------------------------------------------------------
 // timer support and event server
 // copied from ccnl-os-time.c
@@ -262,6 +263,7 @@ ccnl_run_events(void)
     return NULL;
 }
 
+#endif
 // ----------------------------------------------------------------------
 
 struct ccnl_relay_s theRelay;
