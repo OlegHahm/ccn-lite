@@ -135,7 +135,7 @@ all: ${PROGS}
 	+make -C util
 
 lib-ccn-lite.a: ccn-lite-riot.c \
-	${SUITE_LIBS} ${CCNL_CORE_LIB}
+	${SUITE_LIBS} ${CCNL_CORE_LIB} ${CCNL_PLATFORM_LIB}
 	${CC} -o $@ ${RIOT_CFLAGS} ${CCNLCFLAGS} -c $<
 
 ccn-lite-minimalrelay: ccn-lite-minimalrelay.c \
