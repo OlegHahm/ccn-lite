@@ -56,6 +56,20 @@ timestamp(void)
 
 #else // !CCNL_ARDUINO
 
+/* this is a workaround for missing gettimeofday in RIOT */
+#ifdef CCNL_RIOT
+void
+gettimeofday(struct timeval *tv, void *dummy)
+{
+    (void) dummy;
+    timex_t now;
+    xtimer_now_timex(&now);
+
+    tv->tv_sec = now.seconds;
+    tv->tv_usec = now.microseconds;
+}
+#endif
+
 #define CCNL_NOW()                    current_time()
 
 #ifndef CCNL_LINUXKERNEL
