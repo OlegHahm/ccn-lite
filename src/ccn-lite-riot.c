@@ -48,6 +48,7 @@
 #include "log.h"
 
 #include "ccn-lite-riot.h"
+#include "ccnl-os-time.c"
 // ----------------------------------------------------------------------
 // "replacement lib"
 
@@ -306,7 +307,7 @@ void ccnl_minimalrelay_ageing(void *relay, void *aux)
 void
 ccnl_event_loop(struct ccnl_relay_s *ccnl)
 {
-    int i, maxfd = -1, rc;
+    int i, maxfd = -1;
     fd_set readfs, writefs;
 
     if (ccnl->ifcount == 0) {
@@ -321,7 +322,7 @@ ccnl_event_loop(struct ccnl_relay_s *ccnl)
     FD_ZERO(&readfs);
     FD_ZERO(&writefs);
     while(!ccnl->halt_flag) {
-        struct timeval *timeout;
+        long timeout;
 
         for (i = 0; i < ccnl->ifcount; i++) {
             FD_SET(ccnl->ifs[i].sock, &readfs);
@@ -332,12 +333,14 @@ ccnl_event_loop(struct ccnl_relay_s *ccnl)
         }
 
         timeout = ccnl_run_events();
+        (void) timeout;
+        /*
         rc = select(maxfd, &readfs, &writefs, NULL, timeout);
         if (rc < 0) {
             perror("select(): ");
             exit(EXIT_FAILURE);
         }
-
+*/
         for (i = 0; i < ccnl->ifcount; i++) {
             if (FD_ISSET(ccnl->ifs[i].sock, &readfs)) {
                 sockunion src_addr;
