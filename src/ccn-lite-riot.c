@@ -44,10 +44,13 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
+
 /* RIOT specific includes */
 #include "log.h"
-
+#include "kernel_types.h"
+#include "net/gnrc/netreg.h"
 #include "ccn-lite-riot.h"
+
 #include "ccnl-os-time.c"
 // ----------------------------------------------------------------------
 // "replacement lib"
@@ -100,7 +103,6 @@
 /* TODO: pass received content to upper layer (application */
 #define ccnl_app_RX(x,y)                do{}while(0)
 
-#define ccnl_ll_TX(r,i,a,b)             sendto(i->sock,b->data,b->datalen,r?0:0,(struct sockaddr*)&(a)->ip6,sizeof(struct sockaddr_in6))
 #define ccnl_close_socket(s)            close(s)
 
 #define compute_ccnx_digest(b) NULL
@@ -145,12 +147,21 @@ ccnl_buf_new(void *data, int len)
 // ----------------------------------------------------------------------
 struct ccnl_relay_s theRelay;
 int debug_level;
+void
+ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
+           sockunion *dest, struct ccnl_buf_s *buf);
 
 #include "ccnl-core.c"
 
 // ----------------------------------------------------------------------
-// UDP socket, main event loop
-
+int
+ccnl_open_netif(kernel_pid_t if_pid, gnrc_nettype_t netreg_type)
+{
+    gnrc_netreg_entry_t ne;
+    ne.demux_ctx =  GNRC_NETREG_DEMUX_CTX_ALL;
+    ne.pid = if_pid;
+    return gnrc_netreg_register(netreg_type, &ne);
+}
 int
 ccnl_open_udpdev(int port)
 {
@@ -173,6 +184,35 @@ ccnl_open_udpdev(int port)
 
     return s;
 }
+
+void
+ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
+           sockunion *dest, struct ccnl_buf_s *buf)
+{
+    (void) ccnl;
+    int rc;
+    DEBUGMSG(TRACE, "ccnl_ll_TX %d bytes\n", buf ? buf->datalen : -1);
+    switch(dest->sa.sa_family) {
+#ifdef USE_IPV6
+    case AF_INET6:
+        rc = sendto(ifc->sock, buf->data, buf->datalen, 0, (struct sockaddr*)
+                &(dest)->ip6, sizeof(struct sockaddr_in6));
+        char str[INET6_ADDRSTRLEN];
+        DEBUGMSG(DEBUG, "udp sendto %s/%d returned %d\n",
+                 inet_ntop(AF_INET6, dest->ip6.sin6_addr.s6_addr, str,
+                     INET6_ADDRSTRLEN), ntohs(dest->ip6.sin6_port), rc);
+        break;
+#endif
+    case AF_PACKET:
+        /* TODO: implement gnrc netapi call here */
+        break;
+    default:
+        DEBUGMSG(WARNING, "unknown transport\n");
+        break;
+    }
+    (void) rc; // just to silence a compiler warning (if USE_DEBUG is not set)
+}
+
 
 void ccnl_minimalrelay_ageing(void *relay, void *aux)
 {
