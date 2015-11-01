@@ -49,6 +49,8 @@
 #include "log.h"
 #include "kernel_types.h"
 #include "net/gnrc/netreg.h"
+#include "net/gnrc/netif/hdr.h"
+#include "net/gnrc/netapi.h"
 #include "ccn-lite-riot.h"
 
 #include "ccnl-os-time.c"
@@ -203,7 +205,7 @@ ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
                      INET6_ADDRSTRLEN), ntohs(dest->ip6.sin6_port), rc);
         break;
 #endif
-    case AF_PACKET:
+    case AF_PACKET: {
         gnrc_netif_hdr_t *nethdr;
         gnrc_pktsnip_t *pkt= gnrc_pktbuf_add(NULL, buf->data, buf->datalen, GNRC_NETTYPE_UNDEF);
         pkt = gnrc_pktbuf_add(pkt, NULL, sizeof(gnrc_netif_hdr_t) + 8, GNRC_NETTYPE_NETIF);
@@ -215,6 +217,7 @@ ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
         /* TODO: implement gnrc netapi call here */
         gnrc_netapi_send(ifc->if_pid, pkt);
         break;
+        }
     default:
         DEBUGMSG(WARNING, "unknown transport\n");
         break;
@@ -278,8 +281,18 @@ ccnl_event_loop(struct ccnl_relay_s *ccnl)
         else {
             msg_t m;
             puts("starting netif event loop");
-            msg_receive(&m);
-            printf("received message of type %" PRIu16 "\n", m.type);
+            if (xtimer_msg_receive_timeout(&m, SEC_IN_USEC) >= 0) {
+                printf("received message of type %" PRIu16 "\n", m.type);
+            }
+            else {
+                puts("Timeout");
+                for (i = 0; i < ccnl->ifcount; i++) {
+                    if (ccnl->ifs[i].qlen > 0) {
+                        puts("Sending instead");
+                        ccnl_interface_CTS(&theRelay, &theRelay.ifs[i]);
+                    }
+                }
+            }
         }
         /*
         rc = select(maxfd, &readfs, &writefs, NULL, timeout);
