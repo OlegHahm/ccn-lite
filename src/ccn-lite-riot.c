@@ -224,39 +224,55 @@ void
 ccnl_event_loop(struct ccnl_relay_s *ccnl)
 {
     int i, maxfd = -1;
+    unsigned sock_count = 0;
     fd_set readfs, writefs;
 
     if (ccnl->ifcount == 0) {
-        fprintf(stderr, "no socket to work with, not good, quitting\n");
-        exit(EXIT_FAILURE);
+        puts("no interfaces to work with, not good, quitting\n");
+        return;
     }
-    for (i = 0; i < ccnl->ifcount; i++)
-        if (ccnl->ifs[i].sock > maxfd)
+
+    for (i = 0; i < ccnl->ifcount; i++) {
+        if (ccnl->ifs[i].sock > maxfd) {
             maxfd = ccnl->ifs[i].sock;
+            sock_count++;
+        }
+    }
     maxfd++;
 
-    FD_ZERO(&readfs);
-    FD_ZERO(&writefs);
+    if (sock_count > 0) {
+        FD_ZERO(&readfs);
+        FD_ZERO(&writefs);
+    }
+
     while(!ccnl->halt_flag) {
         long timeout;
 
-        for (i = 0; i < ccnl->ifcount; i++) {
-            FD_SET(ccnl->ifs[i].sock, &readfs);
-            if (ccnl->ifs[i].qlen > 0)
-                FD_SET(ccnl->ifs[i].sock, &writefs);
-            else
-                FD_CLR(ccnl->ifs[i].sock, &writefs);
+        if (sock_count > 0) {
+            for (i = 0; i < ccnl->ifcount; i++) {
+                FD_SET(ccnl->ifs[i].sock, &readfs);
+                if (ccnl->ifs[i].qlen > 0)
+                    FD_SET(ccnl->ifs[i].sock, &writefs);
+                else
+                    FD_CLR(ccnl->ifs[i].sock, &writefs);
+            }
         }
 
         timeout = ccnl_run_events();
         (void) timeout;
+        if (sock_count > 0) {
+            puts("Sockets are not yet implemented");
+            return;
+        }
+        else {
+            puts("starting netif event loop");
+        }
         /*
         rc = select(maxfd, &readfs, &writefs, NULL, timeout);
         if (rc < 0) {
             perror("select(): ");
             exit(EXIT_FAILURE);
         }
-*/
         for (i = 0; i < ccnl->ifcount; i++) {
             if (FD_ISSET(ccnl->ifs[i].sock, &readfs)) {
                 sockunion src_addr;
@@ -270,6 +286,7 @@ ccnl_event_loop(struct ccnl_relay_s *ccnl)
             if (FD_ISSET(ccnl->ifs[i].sock, &writefs))
                 ccnl_interface_CTS(&theRelay, &theRelay.ifs[0]);
         }
+        */
     }
 }
 
