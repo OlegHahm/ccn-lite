@@ -52,6 +52,9 @@ typedef union {
 #ifdef USE_IPV6
     struct sockaddr_in6 ip6;
 #endif
+#ifdef USE_IEEE802154
+    struct sockaddr_ll ieee802154;
+#endif
 #ifdef USE_ETHERNET
     struct sockaddr_ll eth;
 #endif
