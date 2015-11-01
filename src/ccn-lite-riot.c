@@ -204,7 +204,16 @@ ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
         break;
 #endif
     case AF_PACKET:
+        gnrc_netif_hdr_t *nethdr;
+        gnrc_pktsnip_t *pkt= gnrc_pktbuf_add(NULL, buf->data, buf->datalen, GNRC_NETTYPE_UNDEF);
+        pkt = gnrc_pktbuf_add(pkt, NULL, sizeof(gnrc_netif_hdr_t) + 8, GNRC_NETTYPE_NETIF);
+        nethdr = (gnrc_netif_hdr_t *)pkt->data;
+        gnrc_netif_hdr_init(nethdr, 8, 8);
+        gnrc_netif_hdr_set_dst_addr(nethdr, dest->ieee802154.sll_addr, 8);
+        /* TODO: not always use broadcast */
+        nethdr->flags = GNRC_NETIF_HDR_FLAGS_BROADCAST;
         /* TODO: implement gnrc netapi call here */
+        gnrc_netapi_send(ifc->if_pid, pkt);
         break;
     default:
         DEBUGMSG(WARNING, "unknown transport\n");
@@ -235,7 +244,9 @@ ccnl_event_loop(struct ccnl_relay_s *ccnl)
     for (i = 0; i < ccnl->ifcount; i++) {
         if (ccnl->ifs[i].sock > maxfd) {
             maxfd = ccnl->ifs[i].sock;
-            sock_count++;
+            if (ccnl->ifs[i].sock > 0) {
+                sock_count++;
+            }
         }
     }
     maxfd++;
@@ -265,7 +276,10 @@ ccnl_event_loop(struct ccnl_relay_s *ccnl)
             return;
         }
         else {
+            msg_t m;
             puts("starting netif event loop");
+            msg_receive(&m);
+            printf("received message of type %" PRIu16 "\n", m.type);
         }
         /*
         rc = select(maxfd, &readfs, &writefs, NULL, timeout);
