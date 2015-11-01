@@ -77,6 +77,9 @@ struct ccnl_if_s { // interface for packet IO
     struct packet_type ccnl_packet;
 #elif defined(CCNL_ARDUINO)
     EthernetUDP *sock;
+#elif defined(CCNL_RIOT)
+    int sock;
+    kernel_pid_t if_pid;
 #else
     int sock;
 #endif
