@@ -105,7 +105,7 @@ bool ccnl_isSuite(int suite);
 
 // ----------------------------------------------------------------------
 struct ccnl_relay_s theRelay;
-int debug_level;
+extern int debug_level;
 void
 ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
            sockunion *dest, struct ccnl_buf_s *buf);
