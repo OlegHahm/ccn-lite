@@ -46,43 +46,16 @@
 
 
 /* RIOT specific includes */
-#include "log.h"
 #include "kernel_types.h"
 #include "net/gnrc/netreg.h"
 #include "net/gnrc/netif/hdr.h"
 #include "net/gnrc/netapi.h"
+#include "net/packet.h"
 #include "ccn-lite-riot.h"
 
 #include "ccnl-os-time.c"
 // ----------------------------------------------------------------------
 // "replacement lib"
-
-#define FATAL   LOG_ERROR
-#define ERROR   LOG_ERROR
-#define WARNING LOG_WARNING
-#define INFO    LOG_INFO
-#define DEBUG   LOG_DEBUG
-#define TRACE   LOG_DEBUG
-#define VERBOSE LOG_ALL
-
-#define DEBUGMSG(LVL, ...) do {       \
-        if ((LVL)>debug_level) break;   \
-        LOG(LVL, __VA_ARGS__);   \
-    } while (0)
-# define DEBUGMSG_CORE(...) DEBUGMSG(__VA_ARGS__)
-# define DEBUGMSG_CFWD(...) DEBUGMSG(__VA_ARGS__)
-# define DEBUGMSG_CUTL(...) DEBUGMSG(__VA_ARGS__)
-# define DEBUGMSG_PIOT(...) DEBUGMSG(__VA_ARGS__)
-
-#define DEBUGSTMT(LVL, ...) do { \
-        if ((LVL)>debug_level) break; \
-        __VA_ARGS__; \
-     } while (0)
-
-#define TRACEIN(...)                    do {} while(0)
-#define TRACEOUT(...)                   do {} while(0)
-
-#define CONSTSTR(s)                     s
 
 #define free_2ptr_list(a,b)     ccnl_free(a), ccnl_free(b)
 #define free_3ptr_list(a,b,c)   ccnl_free(a), ccnl_free(b), ccnl_free(c)
