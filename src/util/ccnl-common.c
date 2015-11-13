@@ -24,6 +24,8 @@
 
 #ifndef CCNL_UAPI_H_    // if CCNL_UAPI_H_ is defined then the following config is taken care elsewhere in the code composite
 
+#define USE_IPV4
+
 #define USE_LOGGING
 #define CCNL_UNIX
 #define _DEFAULT_SOURCE

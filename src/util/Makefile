@@ -1,7 +1,7 @@
 # ccnl/util/Makefile
 
 CC?=gcc
-CFLAGS=-Wall -g -DUSE_UTIL -Wno-error=deprecated-declarations -std=c99 -Werror -DUSE_IPV4
+CFLAGS=-Wall -g -DUSE_UTIL -Wno-error=deprecated-declarations -std=c99 -Werror
 EXTLIBS=-lcrypto
 CREATE_BIN=mkdir -p ../../bin && cd ../../bin && ln -f -s ../src/util/$@ $@
 
