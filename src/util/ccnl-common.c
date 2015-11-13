@@ -100,6 +100,19 @@ int ccnl_pkt_prependComponent(int suite, char *src, int *offset, unsigned char *
 #else // CCNL_UAPI_H_ is defined
 
 #include "base64.c"
+#ifdef RIOT_VERSION
+#include "ccnl-defs.h"
+#include "net/packet.h"
+#include <unistd.h>
+#include "sys/socket.h"
+#include "ccn-lite-riot.h"
+#include "ccnl-headers.h"
+#include "ccnl-pkt-ndntlv.h"
+
+int debug_level = WARNING;
+
+extern int ccnl_suite2defaultPort(int suite);
+#endif
 
 #endif // CCNL_UAPI_H_
 
@@ -411,7 +424,7 @@ int ndntlv_isData(unsigned char *buf, int len)
     unsigned int typ;
     int vallen;
 
-    if (len < 0 || ccnl_ndntlv_dehead(&buf, &len, &typ, &vallen))
+    if (len < 0 || ccnl_ndntlv_dehead(&buf, &len, (int*) &typ, &vallen))
         return -1;
     if (typ != NDN_TLV_Data)
         return 0;
