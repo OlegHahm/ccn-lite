@@ -130,22 +130,6 @@ void ccnl_core_addToCleanup(struct ccnl_buf_s *buf);
 const char* ccnl_suite2str(int suite);
 bool ccnl_isSuite(int suite);
 
-//----------------------------------------------------------------------
-
-struct ccnl_buf_s*
-ccnl_buf_new(void *data, int len)
-{
-    struct ccnl_buf_s *b = ccnl_malloc(sizeof(*b) + len);
-
-    if (!b)
-        return NULL;
-    b->next = NULL;
-    b->datalen = len;
-    if (data)
-        memcpy(b->data, data, len);
-    return b;
-}
-
 // ----------------------------------------------------------------------
 struct ccnl_relay_s theRelay;
 int debug_level;
@@ -153,6 +137,7 @@ void
 ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
            sockunion *dest, struct ccnl_buf_s *buf);
 
+extern struct ccnl_buf_s* ccnl_buf_new(void *data, int len);
 #include "ccnl-core.c"
 
 // ----------------------------------------------------------------------
