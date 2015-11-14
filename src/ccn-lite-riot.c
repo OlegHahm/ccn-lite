@@ -66,19 +66,10 @@
 #define free_content(c) do{ /* free_prefix(c->name); */ free_packet(c->pkt); \
                         ccnl_free(c); } while(0)
 
-#define ccnl_frag_new(a,b)                      NULL
-#define ccnl_frag_destroy(e)                    do {} while(0)
-
-#define ccnl_sched_destroy(s)           do {} while(0)
-
-#define ccnl_mgmt(r,b,p,f)              -1
-
 #define ccnl_nfn_monitor(a,b,c,d,e)     do{}while(0)
 
 /* TODO: pass received content to upper layer (application */
 #define ccnl_app_RX(x,y)                do{}while(0)
-
-#define ccnl_close_socket(s)            close(s)
 
 #define compute_ccnx_digest(b) NULL
 #define local_producer(...)             0
