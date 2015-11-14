@@ -240,6 +240,7 @@ int ccnl_str2suite(char *cp);
 //---------------------------------------------------------------------------------------------------------------------------------------
 /* fwd-ccnb.c */
 #ifdef USE_SUITE_CCNB
+int ccnl_ccnb_dehead(unsigned char **buf, int *len, int *num, int *typ);
 int ccnl_ccnb_data2uint(unsigned char *cp, int len);
 struct ccnl_buf_s *ccnl_ccnb_extract(unsigned char **data, int *datalen, int *scope, int *aok, int *min, int *max, struct ccnl_prefix_s **prefix, struct ccnl_buf_s **nonce, struct ccnl_buf_s **ppkd, unsigned char **content, int *contlen);
 int ccnl_ccnb_unmkBinaryInt(unsigned char **data, int *datalen, unsigned int *result, unsigned char *width);
@@ -268,6 +269,8 @@ int ccnl_ccnb_fillContent(struct ccnl_prefix_s *name, unsigned char *data, int d
 #endif // USE_SUITE_CCNB
 
 
+int ccnl_switch_dehead(unsigned char **buf, int *len, int *code);
+int ccnl_enc2suite(int enc);
 //---------------------------------------------------------------------------------------------------------------------------------------
 /* fwd-ccntlv.c */
 #ifdef USE_SUITE_CCNTLV
@@ -292,6 +295,11 @@ int ccnl_ccntlv_fillContent(struct ccnl_prefix_s *name, unsigned char *payload, 
 int ccnl_ccntlv_fillContentWithHdr(struct ccnl_prefix_s *name, unsigned char *payload, int paylen, int *lastchunknum, int *offset, int *contentpos, unsigned char *buf);
 #endif // USE_SUITE_CCNTLV
 
+//---------------------------------------------------------------------------------------------------------------------------------------
+#ifdef USE_SUITE_IOTTLV
+int ccnl_iottlv_dehead(unsigned char **buf, int *len, unsigned int *typ, int *vallen);
+int ccnl_iottlv_peekType(unsigned char *buf, int len);
+#endif
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 /* fwd-ndntlv.c */
