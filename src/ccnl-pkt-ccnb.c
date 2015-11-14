@@ -36,7 +36,7 @@ ccnl_ccnb_consume(int typ, int num, unsigned char **buf, int *len,
 // ----------------------------------------------------------------------
 // ccnb parsing support
 
-static int
+int
 ccnl_ccnb_dehead(unsigned char **buf, int *len, int *num, int *typ)
 {
     int i;
