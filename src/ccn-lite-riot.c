@@ -252,6 +252,23 @@ ccnl_event_loop(struct ccnl_relay_s *ccnl)
             msg_t m;
             if (xtimer_msg_receive_timeout(&m, SEC_IN_USEC) >= 0) {
                 printf("received message of type %" PRIu16 "\n", m.type);
+                for (i = 0; i < ccnl->ifcount; i++) {
+                    if (ccnl->ifs[i].if_pid == m.sender_pid) {
+                        break;
+                    }
+                }
+                if (i == ccnl->ifcount) {
+                    puts("No matching CCN interface found, skipping message");
+                    continue;
+                }
+                gnrc_pktsnip_t *ccn_pkt;
+                gnrc_pktsnip_t *pkt = (gnrc_pktsnip_t *)m.content.ptr;
+                LL_SEARCH_SCALAR(pkt, ccn_pkt, type, GNRC_NETTYPE_CCN);
+                sockunion su;
+                memset(&su, 0, sizeof(su));
+                su.sa.sa_family = AF_PACKET;
+
+                ccnl_core_RX(ccnl, i, ccn_pkt->data, ccn_pkt->size, &su.sa, sizeof(su));
             }
             else {
                 for (i = 0; i < ccnl->ifcount; i++) {
