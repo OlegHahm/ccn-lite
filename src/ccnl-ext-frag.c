@@ -53,6 +53,16 @@
 
 // ----------------------------------------------------------------------
 
+#include <string.h>
+
+#ifdef RIOT_VERSION
+#include "ccn-lite-riot.h"
+#endif
+#include "ccnl-headers.h"
+#include "ccnl-ext.h"
+
+#define DEBUGMSG_EFRA(...) DEBUGMSG(__VA_ARGS__)
+
 struct ccnl_frag_s*
 ccnl_frag_new(int protocol, int mtu)
 {
@@ -110,6 +120,7 @@ ccnl_frag_reset(struct ccnl_frag_s *e, struct ccnl_buf_s *buf,
 int
 ccnl_frag_getfragcount(struct ccnl_frag_s *e, int origlen, int *totallen)
 {
+    (void) origlen;
     int cnt = 0, len = 0;
 
     if (!e)
@@ -405,7 +416,7 @@ ccnl_frag_getnextBE2015(struct ccnl_frag_s *fr, int *ifndx, sockunion *su)
         fr->sendseq++;
 
         fr->sendoffs += datalen;
-        if (fr->sendoffs >= fr->bigpkt->datalen) {
+        if (fr->sendoffs >= (unsigned) fr->bigpkt->datalen) {
             ccnl_free(fr->bigpkt);
             fr->bigpkt = NULL;
         }
@@ -456,7 +467,7 @@ ccnl_frag_nomorefragments(struct ccnl_frag_s *e)
 {
     if (!e || !e->bigpkt)
         return 1;
-    return e->bigpkt->datalen <= e->sendoffs;
+    return (unsigned) e->bigpkt->datalen <= e->sendoffs;
 }
 
 void
