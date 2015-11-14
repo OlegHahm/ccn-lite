@@ -75,6 +75,8 @@
 #define local_producer(...)             0
 
 //----------------------------------------------------------------------
+#define QUEUE_SIZE     (8)
+static msg_t _msg_queue[QUEUE_SIZE];
 
 #include "ccnl-defs.h"
 #include "ccnl-core.h"
@@ -205,6 +207,8 @@ ccnl_event_loop(struct ccnl_relay_s *ccnl)
     int i, maxfd = -1;
     unsigned sock_count = 0;
     fd_set readfs, writefs;
+
+    msg_init_queue(_msg_queue, QUEUE_SIZE);
 
     if (ccnl->ifcount == 0) {
         puts("no interfaces to work with, not good, quitting\n");
