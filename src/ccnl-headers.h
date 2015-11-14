@@ -17,6 +17,7 @@
 /* ccnl-core.c */
 int ccnl_prefix_cmp(struct ccnl_prefix_s *name, unsigned char *md, struct ccnl_prefix_s *p, int mode);
 int ccnl_addr_cmp(sockunion *s1, sockunion *s2);
+char* ccnl_addr2ascii(sockunion *su);
 struct ccnl_face_s *ccnl_get_face_or_create(struct ccnl_relay_s *ccnl, int ifndx, struct sockaddr *sa, int addrlen);
 struct ccnl_face_s *ccnl_face_remove(struct ccnl_relay_s *ccnl, struct ccnl_face_s *f);
 void ccnl_interface_cleanup(struct ccnl_if_s *i);
@@ -45,7 +46,7 @@ void ccnl_core_cleanup(struct ccnl_relay_s *ccnl);
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 /* ccnl-ext-debug.c */
-//struct ccnl_buf_s *ccnl_buf_new(void *data, int len);
+struct ccnl_buf_s *ccnl_buf_new(void *data, int len);
 
 #ifdef USE_DEBUG
 char *eth2ascii(unsigned char *eth);
@@ -299,6 +300,7 @@ int ccnl_ccntlv_fillChunkInterestWithHdr(struct ccnl_prefix_s *name, int *offset
 int ccnl_ccntlv_fillInterestWithHdr(struct ccnl_prefix_s *name, int *offset, unsigned char *buf);
 int ccnl_ccntlv_fillContent(struct ccnl_prefix_s *name, unsigned char *payload, int paylen, int *lastchunknum, int *offset, int *contentpos, unsigned char *buf);
 int ccnl_ccntlv_fillContentWithHdr(struct ccnl_prefix_s *name, unsigned char *payload, int paylen, int *lastchunknum, int *offset, int *contentpos, unsigned char *buf);
+struct ccnl_buf_s* ccnl_ccntlv_mkFrag(struct ccnl_frag_s *fr, unsigned int *consumed);
 #endif // USE_SUITE_CCNTLV
 
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -311,6 +313,7 @@ int ccnl_cistlv_prependChunkInterestWithHdr(struct ccnl_prefix_s *name, int *off
 int ccnl_iottlv_dehead(unsigned char **buf, int *len, unsigned int *typ, int *vallen);
 int ccnl_iottlv_peekType(unsigned char *buf, int len);
 int ccnl_iottlv_prependRequest(struct ccnl_prefix_s *name, int *ttl, int *offset, unsigned char *buf);
+struct ccnl_buf_s* ccnl_iottlv_mkFrag(struct ccnl_frag_s *fr, unsigned int *consumed);
 #endif
 
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -332,6 +335,7 @@ int ccnl_ndntlv_prependBlob(int type, unsigned char *blob, int len, int *offset,
 int ccnl_ndntlv_prependName(struct ccnl_prefix_s *name, int *offset, unsigned char *buf);
 int ccnl_ndntlv_fillInterest(struct ccnl_prefix_s *name, int scope, int *nonce, int *offset, unsigned char *buf);
 int ccnl_ndntlv_fillContent(struct ccnl_prefix_s *name, unsigned char *payload, int paylen, int *offset, int *contentpos, unsigned char *final_block_id, int final_block_id_len, unsigned char *buf);
+struct ccnl_buf_s* ccnl_ndntlv_mkFrag(struct ccnl_frag_s *fr, unsigned int *consumed);
 #endif //USE_SUITE_NDNTLV
 
 //---------------------------------------------------------------------------------------------------------------------------------------
