@@ -269,6 +269,7 @@ int ccnl_ccnb_fillContent(struct ccnl_prefix_s *name, unsigned char *data, int d
 #endif // USE_SUITE_CCNB
 
 
+int ccnl_switch_prependCoding(unsigned int code, int *offset, unsigned char *buf);
 int ccnl_switch_dehead(unsigned char **buf, int *len, int *code);
 int ccnl_enc2suite(int enc);
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -276,6 +277,10 @@ int ccnl_enc2suite(int enc);
 #ifdef USE_SUITE_CCNTLV
 int ccnl_ccntlv_forwarder(struct ccnl_relay_s *relay, struct ccnl_face_s *from, unsigned char **data, int *datalen);
 
+
+//---------------------------------------------------------------------------------------------------------------------------------------
+/* ccnl-pkt-ccnb.c */
+int ccnl_ccnb_mkField(unsigned char *out, unsigned int num, int typ, unsigned char *data, int datalen);
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 /* ccnl-pkt-ccntlv.c */
@@ -287,6 +292,7 @@ int ccnl_ccntlv_prependBlob(unsigned short type, unsigned char *blob, unsigned s
 int ccnl_ccntlv_prependNetworkVarInt(unsigned short type, unsigned int intval, int *offset, unsigned char *buf);
 int ccnl_ccntlv_prependFixedHdr(unsigned char ver, unsigned char packettype, unsigned short payloadlen, unsigned char hoplimit, int *offset, unsigned char *buf);
 int ccnl_ccntlv_prependChunkName(struct ccnl_prefix_s *name, int *chunknum, int *offset, unsigned char *buf);
+int ccnl_ccntlv_prependChunkInterestWithHdr(struct ccnl_prefix_s *name, int *offset, unsigned char *buf);
 int ccnl_ccntlv_prependName(struct ccnl_prefix_s *name, int *offset, unsigned char *buf, unsigned int *lastchunknum);
 int ccnl_ccntlv_fillInterest(struct ccnl_prefix_s *name, int *offset, unsigned char *buf);
 int ccnl_ccntlv_fillChunkInterestWithHdr(struct ccnl_prefix_s *name, int *offset, unsigned char *buf);
@@ -296,9 +302,15 @@ int ccnl_ccntlv_fillContentWithHdr(struct ccnl_prefix_s *name, unsigned char *pa
 #endif // USE_SUITE_CCNTLV
 
 //---------------------------------------------------------------------------------------------------------------------------------------
+#ifdef USE_SUITE_CISTLV
+int ccnl_cistlv_prependChunkInterestWithHdr(struct ccnl_prefix_s *name, int *offset, unsigned char *buf);
+#endif
+
+//---------------------------------------------------------------------------------------------------------------------------------------
 #ifdef USE_SUITE_IOTTLV
 int ccnl_iottlv_dehead(unsigned char **buf, int *len, unsigned int *typ, int *vallen);
 int ccnl_iottlv_peekType(unsigned char *buf, int len);
+int ccnl_iottlv_prependRequest(struct ccnl_prefix_s *name, int *ttl, int *offset, unsigned char *buf);
 #endif
 
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -307,7 +319,7 @@ int ccnl_iottlv_peekType(unsigned char *buf, int len);
 unsigned long int ccnl_ndntlv_nonNegInt(unsigned char *cp, int len);
 int ccnl_ndntlv_dehead(unsigned char **buf, int *len, int *typ, int *vallen);
 int ccnl_ndntlv_forwarder(struct ccnl_relay_s *relay, struct ccnl_face_s *from, unsigned char **data, int *datalen);
-
+int ccnl_ndntlv_prependInterest(struct ccnl_prefix_s *name, int scope, int *nonce, int *offset, unsigned char *buf);
 //---------------------------------------------------------------------------------------------------------------------------------------
 /* ccnl-pkt-ndntlv.c */
 unsigned long int ccnl_ndntlv_nonNegInt(unsigned char *cp, int len);
