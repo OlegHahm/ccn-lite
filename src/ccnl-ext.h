@@ -21,9 +21,10 @@
  */
 
 #pragma once
-
 #if defined(USE_FRAG) || defined(USE_MGMT) || defined(USE_NFN) || defined(USE_SIGNATURES) || defined(USE_SUITE_LOCALRPC)
-# define NEEDS_PACKET_CRAFTING
+# ifndef NEEDS_PACKET_CRAFTING
+#  define NEEDS_PACKET_CRAFTING
+# endif
 #endif
 
 // ----------------------------------------------------------------------
