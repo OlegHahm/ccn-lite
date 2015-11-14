@@ -226,6 +226,7 @@ ccnl_event_loop(struct ccnl_relay_s *ccnl)
         FD_ZERO(&writefs);
     }
 
+    puts("starting netif event loop");
     while(!ccnl->halt_flag) {
         long timeout;
 
@@ -247,12 +248,10 @@ ccnl_event_loop(struct ccnl_relay_s *ccnl)
         }
         else {
             msg_t m;
-            puts("starting netif event loop");
             if (xtimer_msg_receive_timeout(&m, SEC_IN_USEC) >= 0) {
                 printf("received message of type %" PRIu16 "\n", m.type);
             }
             else {
-                puts("Timeout");
                 for (i = 0; i < ccnl->ifcount; i++) {
                     if (ccnl->ifs[i].qlen > 0) {
                         puts("Sending instead");
