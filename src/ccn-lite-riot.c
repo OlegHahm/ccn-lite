@@ -204,17 +204,14 @@ void ccnl_minimalrelay_ageing(void *relay, void *aux)
 void
 ccnl_event_loop(struct ccnl_relay_s *ccnl)
 {
-    int i, maxfd = -1;
+    int i;
+    //int maxfd = -1;
     unsigned sock_count = 0;
     fd_set readfs, writefs;
 
     msg_init_queue(_msg_queue, QUEUE_SIZE);
 
-    if (ccnl->ifcount == 0) {
-        puts("no interfaces to work with, not good, quitting\n");
-        return;
-    }
-
+    /* TODO: re-enable for socket support
     for (i = 0; i < ccnl->ifcount; i++) {
         if (ccnl->ifs[i].sock > maxfd) {
             maxfd = ccnl->ifs[i].sock;
@@ -229,6 +226,7 @@ ccnl_event_loop(struct ccnl_relay_s *ccnl)
         FD_ZERO(&readfs);
         FD_ZERO(&writefs);
     }
+    */
 
     puts("starting netif event loop");
     while(!ccnl->halt_flag) {
