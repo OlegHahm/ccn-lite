@@ -108,6 +108,10 @@ int ccnl_pkt_prependComponent(int suite, char *src, int *offset, unsigned char *
 #include "ccn-lite-riot.h"
 #include "ccnl-headers.h"
 #include "ccnl-pkt-ndntlv.h"
+#include "ccnl-pkt-ccntlv.h"
+#include "ccnl-pkt-iottlv.h"
+#include "ccnl-pkt-cistlv.h"
+#include "ccnl-pkt-ccnb.h"
 
 int debug_level = WARNING;
 
@@ -316,7 +320,7 @@ int cistlv_isData(unsigned char *buf, int len)
 
     TRACEIN();
 
-    if (len < sizeof(struct cisco_tlvhdr_201501_s)) {
+    if (len < (int) sizeof(struct cisco_tlvhdr_201501_s)) {
         DEBUGMSG(ERROR, "cistlv header not large enough");
         return -1;
     }
