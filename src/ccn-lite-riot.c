@@ -127,7 +127,7 @@ ccnl_open_netif(kernel_pid_t if_pid, gnrc_nettype_t netreg_type)
     gnrc_netapi_set(if_pid, NETOPT_PROTO, 0, &netreg_type, sizeof(gnrc_nettype_t));
     /* register for this nettype */
     ccnl_riot_ne.demux_ctx =  GNRC_NETREG_DEMUX_CTX_ALL;
-    ccnl_riot_ne.pid = if_pid;
+    ccnl_riot_ne.pid = sched_active_pid;
     return gnrc_netreg_register(netreg_type, &ccnl_riot_ne);
 }
 
