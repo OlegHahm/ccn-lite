@@ -105,6 +105,20 @@ extern struct ccnl_buf_s* ccnl_buf_new(void *data, int len);
 #include "ccnl-core.c"
 
 // ----------------------------------------------------------------------
+struct ccnl_buf_s*
+ccnl_buf_new(void *data, int len)
+{
+    struct ccnl_buf_s *b = ccnl_malloc(sizeof(*b) + len);
+
+    if (!b)
+        return NULL;
+    b->next = NULL;
+    b->datalen = len;
+    if (data)
+        memcpy(b->data, data, len);
+    return b;
+}
+
 int
 ccnl_open_netif(kernel_pid_t if_pid, gnrc_nettype_t netreg_type)
 {
