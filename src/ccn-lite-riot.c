@@ -367,7 +367,7 @@ void
 {
     msg_init_queue(_msg_queue, CCNL_QUEUE_SIZE);
     struct ccnl_relay_s *ccnl = (struct ccnl_relay_s*) arg;
-    debug_level = DEBUG;
+    debug_level = WARNING;
 
     /* start periodic timer */
     ccnl_set_timer(SEC_IN_USEC, ccnl_ageing, ccnl, 0);
