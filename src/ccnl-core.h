@@ -98,9 +98,6 @@ struct ccnl_if_s { // interface for packet IO
     struct ccnl_txrequest_s queue[CCNL_MAX_IF_QLEN];
     struct ccnl_sched_s *sched;
 
-#ifdef USE_STATS
-    uint32_t rx_cnt, tx_cnt;
-#endif
 };
 
 struct ccnl_relay_s {

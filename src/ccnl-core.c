@@ -42,6 +42,8 @@ int ccnl_i_prefixof_c(struct ccnl_prefix_s *prefix, int minsuffix,
 #define buf_equal(X,Y)  ((X) && (Y) && (X->datalen==Y->datalen) &&\
                          !memcmp(X->data,Y->data,X->datalen))
 
+uint32_t tx_cnt = 0, rx_cnt = 0;
+
 struct ccnl_prefix_s* ccnl_prefix_new(int suite, int cnt);
 
 // ----------------------------------------------------------------------
@@ -237,7 +239,7 @@ ccnl_interface_CTS(void *aux1, void *aux2)
         return;
 
 #ifdef USE_STATS
-    ifc->tx_cnt++;
+    tx_cnt++;
 #endif
 
     r = ifc->queue + ifc->qfront;
@@ -912,7 +914,7 @@ ccnl_core_RX(struct ccnl_relay_s *relay, int ifndx, unsigned char *data,
 
 #ifdef USE_STATS
     if (ifndx >= 0)
-        relay->ifs[ifndx].rx_cnt++;
+        rx_cnt++;
 #endif
 
     from = ccnl_get_face_or_create(relay, ifndx, sa, addrlen);
