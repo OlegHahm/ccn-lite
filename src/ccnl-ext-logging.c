@@ -22,7 +22,7 @@
 
 #ifdef USE_LOGGING
 
-extern int debug_level;
+extern int ccnl_debug_level;
 
 #define FATAL   0  // FATAL
 #define ERROR   1  // ERROR
@@ -72,7 +72,7 @@ ccnl_debugLevelToChar(int level)
 #ifdef CCNL_ARDUINO
 
 #define _TRACE(F,P) do {                    \
-    if (debug_level >= TRACE) { char *cp;   \
+    if (ccnl_debug_level >= TRACE) { char *cp;   \
           Serial.print("[");                \
           Serial.print(P); \
           Serial.print("] ");               \
@@ -92,7 +92,7 @@ ccnl_debugLevelToChar(int level)
 #ifdef CCNL_LINUXKERNEL
 
 #define _TRACE(F,P) do {                                    \
-    if (debug_level >= TRACE) {                             \
+    if (ccnl_debug_level >= TRACE) {                             \
         printk("%s: ", THIS_MODULE->name);                  \
         printk("%s() in %s:%d\n", (F), __FILE__, __LINE__); \
     }} while (0)
@@ -100,7 +100,7 @@ ccnl_debugLevelToChar(int level)
 #else
 
 #define _TRACE(F,P) do {                                    \
-    if (debug_level >= TRACE) {                             \
+    if (ccnl_debug_level >= TRACE) {                             \
         fprintf(stderr, "[%c] %s: %s() in %s:%d\n",         \
                 (P), timestamp(), (F), __FILE__, __LINE__); \
     }} while (0)
@@ -123,7 +123,7 @@ ccnl_debug_str2level(char *s)
 #endif // CCNL_ARDUINO
 
 #define DEBUGSTMT(LVL, ...) do { \
-        if ((LVL)>debug_level) break; \
+        if ((LVL)>ccnl_debug_level) break; \
         __VA_ARGS__; \
 } while (0)
 
@@ -133,7 +133,7 @@ ccnl_debug_str2level(char *s)
 #ifdef CCNL_LINUXKERNEL
 
 #  define DEBUGMSG(LVL, ...) do {       \
-        if ((LVL)>debug_level) break;   \
+        if ((LVL)>ccnl_debug_level) break;   \
         printk("%s: ", THIS_MODULE->name);      \
         printk(__VA_ARGS__);            \
     } while (0)
@@ -142,7 +142,7 @@ ccnl_debug_str2level(char *s)
 #elif defined(CCNL_ANDROID)
 
 #  define DEBUGMSG(LVL, ...) do { int len;          \
-        if ((LVL)>debug_level) break;               \
+        if ((LVL)>ccnl_debug_level) break;               \
         len = sprintf(android_logstr, "[%c] %s: ",  \
             ccnl_debugLevelToChar(LVL),             \
             timestamp());                           \
@@ -154,9 +154,9 @@ ccnl_debug_str2level(char *s)
 
 #  define DEBUGMSG_OFF(...) do{}while(0)
 #  define DEBUGMSG_ON(L,FMT, ...) do {     \
-        if ((L) <= debug_level) {       \
+        if ((L) <= ccnl_debug_level) {       \
           Serial.print("[");            \
-          Serial.print(ccnl_debugLevelToChar(debug_level)); \
+          Serial.print(ccnl_debugLevelToChar(ccnl_debug_level)); \
           Serial.print("] ");           \
           sprintf_P(logstr, PSTR(FMT), ##__VA_ARGS__); \
           Serial.print(timestamp());    \
@@ -169,7 +169,7 @@ ccnl_debug_str2level(char *s)
 #else
 
 #  define DEBUGMSG(LVL, ...) do {                   \
-        if ((LVL)>debug_level) break;               \
+        if ((LVL)>ccnl_debug_level) break;               \
         fprintf(stderr, "[%c] %s: ",                \
             ccnl_debugLevelToChar(LVL),             \
             timestamp());                           \

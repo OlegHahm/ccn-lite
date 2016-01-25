@@ -164,7 +164,7 @@ int ccnl_sched_init()
 {
     DEBUGMSG(TRACE, "%s()\n", __func__);
 #ifdef USE_CHEMFLOW
-    cf_debug_level = 0;
+    cf_ccnl_debug_level = 0;
     // create chemflow core
     core = cf_core_create("ccnl-core");
     if (!core)

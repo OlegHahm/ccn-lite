@@ -157,7 +157,7 @@ void setup()
     Serial.println(logstr);
 
 #ifdef USE_DEBUG
-    debug_level = WARNING;
+    ccnl_debug_level = WARNING;
     debug_delta(1);
 #endif
 

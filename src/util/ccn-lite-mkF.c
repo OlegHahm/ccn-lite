@@ -115,7 +115,7 @@ main(int argc, char *argv[])
             break;
         case 'v':
 #ifdef USE_LOGGING
-            debug_level = ccnl_debug_str2level(optarg);
+            ccnl_debug_level = ccnl_debug_str2level(optarg);
 #endif
             break;
 
