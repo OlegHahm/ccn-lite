@@ -69,7 +69,7 @@ int inet_aton(const char *cp, struct in_addr *inp);
 #define VERBOSE 6 // VERBOSE
 
 #define DEBUGMSG(LVL, ...) do {       \
-        if ((LVL)>debug_level) break;   \
+        if ((LVL)>ccnl_debug_level) break;   \
         fprintf(stderr, __VA_ARGS__);   \
     } while (0)
 # define DEBUGMSG_CORE(...) DEBUGMSG(__VA_ARGS__)
@@ -78,7 +78,7 @@ int inet_aton(const char *cp, struct in_addr *inp);
 # define DEBUGMSG_PIOT(...) DEBUGMSG(__VA_ARGS__)
 
 #define DEBUGSTMT(LVL, ...) do { \
-        if ((LVL)>debug_level) break; \
+        if ((LVL)>ccnl_debug_level) break; \
         __VA_ARGS__; \
      } while (0)
 
@@ -278,7 +278,7 @@ ccnl_run_events()
 
 // ----------------------------------------------------------------------
 
-int debug_level;
+int ccnl_debug_level;
 struct ccnl_relay_s theRelay;
 
 #include "ccnl-core.c"
@@ -395,7 +395,7 @@ main(int argc, char **argv)
             udpport = atoi(optarg);
             break;
         case 'v':
-            debug_level = atoi(optarg);
+            ccnl_debug_level = atoi(optarg);
             break;
         case 'h':
         default:

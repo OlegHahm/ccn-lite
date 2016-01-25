@@ -784,6 +784,6 @@ ccnl_buf_new(void *data, int len)
 void free_packet(struct ccnl_pkt_s *pkt);
 
 // -----------------------------------------------------------------
-int debug_level;
+int ccnl_debug_level;
 
 // eof

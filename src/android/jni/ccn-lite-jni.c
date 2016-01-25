@@ -60,20 +60,20 @@ JNIEXPORT jstring JNICALL
 Java_ch_unibas_ccn_1lite_1android_CcnLiteAndroid_relayPlus(JNIEnv* env,
                                                            jobject thiz)
 {
-    if (debug_level < TRACE)
-        debug_level++;
+    if (ccnl_debug_level < TRACE)
+        ccnl_debug_level++;
 
-    return (*env)->NewStringUTF(env, lvl2str(debug_level));
+    return (*env)->NewStringUTF(env, lvl2str(ccnl_debug_level));
 }
 
 JNIEXPORT jstring JNICALL
 Java_ch_unibas_ccn_1lite_1android_CcnLiteAndroid_relayMinus(JNIEnv* env,
                                                             jobject thiz)
 {
-    if (debug_level > 0)
-        debug_level--;
+    if (ccnl_debug_level > 0)
+        ccnl_debug_level--;
 
-    return (*env)->NewStringUTF(env, lvl2str(debug_level));
+    return (*env)->NewStringUTF(env, lvl2str(ccnl_debug_level));
 }
 
 JNIEXPORT void JNICALL

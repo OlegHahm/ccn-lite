@@ -136,7 +136,7 @@ static struct ccnl_face_s *loopback_face;
 /**
  * @brief Debugging level
  */
-extern int debug_level;
+extern int ccnl_debug_level;
 
 /**
  * @brief (Link layer) Send function

@@ -542,7 +542,7 @@ ccnl_init(void)
     struct ccnl_if_s *i;
 
     if (v) {
-        debug_level = ccnl_debug_str2level(v);
+        ccnl_debug_level = ccnl_debug_str2level(v);
     }
     if (s) {
         suite = ccnl_str2suite(s);

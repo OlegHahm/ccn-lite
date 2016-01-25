@@ -693,7 +693,7 @@ ccnl_android_init()
     done = 1;
 
     time(&theRelay.startup_time);
-    debug_level = INFO;
+    ccnl_debug_level = INFO;
 
     ccnl_core_init();
 
