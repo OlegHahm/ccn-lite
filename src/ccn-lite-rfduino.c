@@ -411,13 +411,13 @@ void
 debug_delta(char up)
 {
 #ifdef USE_DEBUG
-    if (up && debug_level < TRACE)
-        debug_level++;
-    else if (!up && debug_level > FATAL)
-        debug_level--;
+    if (up && ccnl_debug_level < TRACE)
+        ccnl_debug_level++;
+    else if (!up && ccnl_debug_level > FATAL)
+        ccnl_debug_level--;
 
     DEBUGMSG_MAIN(FATAL, "debug level now at %d (%c)\n",
-                  debug_level, ccnl_debugLevelToChar(debug_level));
+                  ccnl_debug_level, ccnl_debugLevelToChar(ccnl_debug_level));
 #endif
 }
 
@@ -438,7 +438,7 @@ ccnl_rfduino_init(struct ccnl_relay_s *relay)
     Serial.println(logstr);
 
 #ifdef USE_DEBUG
-  debug_level = WARNING;
+  ccnl_debug_level = WARNING;
   debug_delta(1);
 #endif
 

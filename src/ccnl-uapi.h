@@ -605,7 +605,7 @@ static inline int           setMgmt (struct info_mgmt_s *m) {return m->vtable->s
 #  define CCNL_NOW() (platform_srvcs.get_time_now())
 
 # ifndef PLATFORM_LOG_THRESHOLD
-    // NOTE that the 'debug_level' global threshhold (currently in ccnl-ext-logging.c), 
+    // NOTE that the 'ccnl_debug_level' global threshhold (currently in ccnl-ext-logging.c), 
     // has no default value (that is console output is /dev/null-ed unless otherwise 
     // told in an instantiation of ccn-lite)! It may be set to a value 0-99 or to one 
     // of {FATAL, ERROR, WARNING, INFO, DEBUG, VERBOSE, TRACE} (which strangely mixes
@@ -615,13 +615,13 @@ static inline int           setMgmt (struct info_mgmt_s *m) {return m->vtable->s
     // platform logger (e.g. Omnet's EV logger) than the one used for the console 
     // (by ccn-lite), we send the same debug output to both by modifying the DEBUGMSG()
     // macro.
-#   define PLATFORM_LOG_THRESHOLD  debug_level
+#   define PLATFORM_LOG_THRESHOLD  ccnl_debug_level
 # endif //PLATFORM_LOG_THRESHOLD
 
 # ifdef DEBUGMSG
 # undef DEBUGMSG
 # define DEBUGMSG(LVL, ...) do {   \
-      if ((LVL)<=debug_level) \
+      if ((LVL)<=ccnl_debug_level) \
       { \
         fprintf(stderr, "[%c] %s: ", ccnl_debugLevelToChar(LVL), timestamp());   \
         fprintf(stderr, __VA_ARGS__);   \

@@ -1687,9 +1687,9 @@ main(int argc, char *argv[])
         case 'v':
 #ifdef USE_LOGGING
             if (isdigit(optarg[0]))
-                debug_level = atoi(optarg);
+                ccnl_debug_level = atoi(optarg);
             else
-                debug_level = ccnl_debug_str2level(optarg);
+                ccnl_debug_level = ccnl_debug_str2level(optarg);
 #endif
             break;
         default:

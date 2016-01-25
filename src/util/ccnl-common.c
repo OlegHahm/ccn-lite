@@ -68,7 +68,7 @@
 #include "../ccnl-os-time.c"
 #include "../ccnl-ext-logging.c"
 
-int debug_level = WARNING;
+int ccnl_debug_level = WARNING;
 
 #define ccnl_malloc(s)                  malloc(s)
 #define ccnl_calloc(n,s)                calloc(n,s)
@@ -115,7 +115,7 @@ int ccnl_pkt_prependComponent(int suite, char *src, int *offset, unsigned char *
 #include "ccnl-pkt-cistlv.h"
 #include "ccnl-pkt-ccnb.h"
 
-int debug_level = WARNING;
+int ccnl_debug_level = WARNING;
 
 extern int ccnl_suite2defaultPort(int suite);
 #endif

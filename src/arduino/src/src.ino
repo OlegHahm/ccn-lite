@@ -27,7 +27,7 @@ void setup()
     Serial.println(logstr);
 
 #ifdef USE_DEBUG
-    debug_level = WARNING;
+    ccnl_debug_level = WARNING;
 #endif
 
     // make sure that the SD card is not selected for the SPI port
