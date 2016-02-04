@@ -230,9 +230,20 @@ ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
                                                                  GNRC_NETTYPE_CCN);
 
                             if (pkt == NULL) {
-                                puts("error: packet buffer full");
+                                DEBUGMSG(ERROR, "error: packet buffer full");
                                 return;
                             }
+
+                            uint16_t addr_len = 0;
+                            if (gnrc_netapi_get(ifc->if_pid, NETOPT_SRC_LEN, 0, &addr_len, sizeof(addr_len)) < 0) {
+                                DEBUGMSG(ERROR, "error setting addressing mode\n");
+                            }
+
+                            if (addr_len != dest->linklayer.sll_halen) {
+                                DEBUGMSG(DEBUG, "adjusting link-layer address length to %" PRIu16 "\n", addr_len);
+                                dest->linklayer.sll_halen = addr_len;
+                            }
+
                             /* build link layer header */
                             hdr = gnrc_netif_hdr_build(NULL, 0,
                                                        dest->linklayer.sll_addr,
