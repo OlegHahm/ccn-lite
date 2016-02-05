@@ -59,7 +59,6 @@ void jni_append_to_log(char *line);
 #endif
 
 // ----------------------------------------------------------------------
-#ifdef USE_DEBUG
 
 char* ccnl_addr2ascii(sockunion *su);
 
@@ -328,6 +327,7 @@ ccnl_dump(int lev, int typ, void *p)
     }
 }
 
+#ifdef USE_DEBUG
 #ifdef USE_MGMT
 int
 get_buf_dump(int lev, void *p, long *outbuf, int *len, long *next)
