@@ -50,9 +50,9 @@ struct ccnl_buf_s* ccnl_buf_new(void *data, int len);
 //---------------------------------------------------------------------------------------------------------------------------------------
 /* ccnl-ext-debug.c */
 
+void ccnl_dump(int lev, int typ, void *p);
 #ifdef USE_DEBUG
 char *frag_protocol(int e);
-void ccnl_dump(int lev, int typ, void *p);
 int get_buf_dump(int lev, void *p, long *outbuf, int *len, long *next);
 int get_prefix_dump(int lev, void *p, int *len, char **val);
 int get_num_faces(void *p);
