@@ -537,7 +537,7 @@ ccnl_interest_broadcast(struct ccnl_relay_s *ccnl, struct ccnl_interest_s *inter
                 sun.sa.sa_family = AF_PACKET;
                 memcpy(&(sun.linklayer.sll_addr), relay_addr, CCNL_MAX_ADDRESS_LEN);
                 sun.linklayer.sll_halen = CCNL_MAX_ADDRESS_LEN;
-                sun.linklayer.sll_protocol = htons(ETHERTYPE_NDN);
+                sun.linklayer.sll_protocol = htons(CCNL_ETH_TYPE);
 
                 break;
                               }
