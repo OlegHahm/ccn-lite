@@ -108,7 +108,7 @@ IOTTLV_LIB = ccnl-pkt-iottlv.h ccnl-pkt-iottlv.c
 NDNTLV_LIB = ccnl-pkt-ndntlv.h ccnl-pkt-ndntlv.c
 LOCALRPC_LIB = ccnl-pkt-localrpc.h ccnl-pkt-localrpc.c ccnl-ext-localrpc.c
 SUITE_LIBS = ${CCNB_LIB} ${CCNTLV_LIB} ${CISTLV_LIB} ${IOTTLV_LIB} ${NDNTLV_LIB} ${LOCALRPC_LIB}
-UTIL_LIB := util/base64.o util/ccnl-common.o
+UTIL_LIB := util/base64.o util/ccnl-common.o ccnl-ext-debug.o
 
 
 CCNL_CORE_LIB = ccnl-defs.h ccnl-core.h ccnl-core.c ccnl-core-fwd.c ccnl-core-util.c
@@ -143,7 +143,7 @@ lib-ccn-lite.a: ccn-lite-riot.c \
 	${SUITE_LIBS} ${CCNL_CORE_LIB} ${CCNL_PLATFORM_LIB}
 	${CC} -o $@ ${RIOT_CFLAGS} ${CCNLCFLAGS} -c $<
 
-lib-ccn-lite-utils.a: ${UTIL_LIB} util/base64.c util/ccnl-common.c
+lib-ccn-lite-utils.a: ${UTIL_LIB} util/base64.c util/ccnl-common.c ccnl-ext-debug.c
 	${AR} rcs $@ ${UTIL_LIB}
 
 $(UTIL_LIB): %.o: %.c
