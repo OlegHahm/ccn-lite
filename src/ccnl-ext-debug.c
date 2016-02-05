@@ -26,6 +26,21 @@
 #  define USE_LOGGING
 #endif
 
+#include <stdio.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#ifdef RIOT_VERSION
+#   include <net/packet.h>
+#elif defined(linux)
+#  include <linux/if_packet.h> // sockaddr_ll
+#endif
+
+#include "ccnl-defs.h"
+#include "ccnl-core.h"
+#include "ccnl-ext.h"
 #include "ccnl-ext-debug.h"
 
 #ifdef CCNL_ARDUINO
@@ -68,7 +83,7 @@ static void
 blob(struct ccnl_buf_s *buf)
 {
     unsigned char *cp = buf->data;
-    unsigned int i;
+    int i;
 
     for (i = 0; i < buf->datalen; i++, cp++)
         CONSOLE("%02x", *cp);
@@ -754,6 +769,7 @@ debug_buf_new(void *data, int len, const char *fn, int lno, char *tstamp)
 #  define ccnl_free(p)          free(p)
 # endif
 
+#ifndef RIOT_VERSION
 struct ccnl_buf_s*
 ccnl_buf_new(void *data, int len)
 {
@@ -767,6 +783,7 @@ ccnl_buf_new(void *data, int len)
         memcpy(b->data, data, len);
     return b;
 }
+#endif
 
 #endif // !USE_DEBUG_MALLOC
 
@@ -784,6 +801,8 @@ ccnl_buf_new(void *data, int len)
 void free_packet(struct ccnl_pkt_s *pkt);
 
 // -----------------------------------------------------------------
+#ifndef RIOT_VERSION 
 int ccnl_debug_level;
+#endif
 
 // eof
