@@ -258,9 +258,8 @@ ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
 
                             /* distinguish between broadcast and unicast */
                             bool is_bcast = true;
-                            /* TODO: handle broadcast addresses which are not all 0xFF */
                             for (unsigned i = 0; i < dest->linklayer.sll_halen; i++) {
-                                if (dest->linklayer.sll_addr[i] != UINT8_MAX) {
+                                if (dest->linklayer.sll_addr[i] != CCNL_BROADCAST_OCTET) {
                                     is_bcast = false;
                                     break;
                                 }
@@ -426,6 +425,7 @@ ccnl_wait_for_chunk(void *buf, size_t buf_len, uint64_t timeout)
 
         /* TODO: receive from socket or interface */
         msg_t m;
+        uint64_t now = xtimer_now64();
         if (xtimer_msg_receive_timeout(&m, timeout) >= 0) {
             DEBUGMSG(DEBUG, "received something\n");
         }
@@ -456,8 +456,9 @@ ccnl_wait_for_chunk(void *buf, size_t buf_len, uint64_t timeout)
             break;
         }
         else {
-            /* TODO: reduce timeout value */
             DEBUGMSG(DEBUG, "Unknow message received, ignore it\n");
+            /* decrease timeout by time already passed */
+            timeout = (xtimer_now64() - now);
         }
     }
 
