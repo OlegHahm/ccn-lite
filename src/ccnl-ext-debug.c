@@ -765,7 +765,7 @@ debug_buf_new(void *data, int len, const char *fn, int lno, char *tstamp)
 #  define ccnl_free(p)          free(p)
 # endif
 
-#ifndef CCNL_RIOT
+#ifndef RIOT_VERSION
 struct ccnl_buf_s*
 ccnl_buf_new(void *data, int len)
 {
