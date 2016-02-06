@@ -32,10 +32,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#if defined(linux)
-#  include <linux/if_packet.h> // sockaddr_ll
-#else
+#ifdef RIOT_VERSION
 #   include <net/packet.h>
+#elif defined(linux)
+#  include <linux/if_packet.h> // sockaddr_ll
 #endif
 
 #include "ccnl-defs.h"
