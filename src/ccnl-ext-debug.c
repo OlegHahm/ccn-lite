@@ -32,7 +32,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <net/packet.h>
+#if defined(linux)
+#  include <linux/if_packet.h> // sockaddr_ll
+#else
+#   include <net/packet.h>
+#endif
 
 #include "ccnl-defs.h"
 #include "ccnl-core.h"
@@ -797,6 +801,8 @@ ccnl_buf_new(void *data, int len)
 void free_packet(struct ccnl_pkt_s *pkt);
 
 // -----------------------------------------------------------------
+#ifndef RIOT_VERSION 
 int ccnl_debug_level;
+#endif
 
 // eof
