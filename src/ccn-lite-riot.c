@@ -38,7 +38,14 @@
 #include "net/gnrc/netif/hdr.h"
 #include "net/gnrc/netapi.h"
 #include "net/packet.h"
+
+/**
+ * Use RIOT specific configuration in CCN-Lite
+ */
+#define CCNL_RIOT
+
 #include "ccn-lite-riot.h"
+
 
 #include "ccnl-os-time.c"
 
