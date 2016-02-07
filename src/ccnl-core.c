@@ -525,6 +525,7 @@ ccnl_interest_broadcast(struct ccnl_relay_s *ccnl, struct ccnl_interest_s *inter
 {
     sockunion sun;
     for (unsigned i = 0; i < CCNL_MAX_INTERFACES; i++) {
+        DEBUGMSG(WARNING, "bcast: found interface of familiy %u\n", ccnl->ifs[i].addr.sa.sa_family);
         switch (ccnl->ifs[i].addr.sa.sa_family) {
 #ifdef USE_LINKLAYER
             case (AF_PACKET): {
