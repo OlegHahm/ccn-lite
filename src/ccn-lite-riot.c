@@ -279,7 +279,7 @@ ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
                             break;
                         }
         default:
-                        DEBUGMSG(WARNING, "unknown transport\n");
+                        DEBUGMSG(WARNING, "unknown transport: %u\n", dest->sa.sa_family);
                         break;
     }
     (void) rc; /* just to silence a compiler warning (if USE_DEBUG is not set) */
