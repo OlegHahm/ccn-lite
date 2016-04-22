@@ -75,6 +75,12 @@ int local_producer(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
                    struct ccnl_pkt_s *pkt);
 
 /**
+ * @brief May be defined to handle special content, e.g. that should not be cached
+ */
+int local_consumer(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
+                   struct ccnl_pkt_s *pkt);
+
+/**
  * @brief RIOT specific local variables
  * @{
  */
@@ -97,7 +103,12 @@ static kernel_pid_t _ccnl_event_loop_pid = KERNEL_PID_UNDEF;
 /**
  * local producer function defined by the application
  */
-ccnl_producer_func _prod_func = NULL;
+ccnl_local_func _prod_func = NULL;
+
+/**
+ * local consumer function defined by the application
+ */
+static ccnl_local_func _cons_func = NULL;
 
 /**
  * currently configured suite
@@ -535,9 +546,15 @@ struct ccnl_interest_s
     return i;
 }
 
-void ccnl_set_local_producer(ccnl_producer_func func)
+void ccnl_set_local_producer(ccnl_local_func func)
 {
     _prod_func = func;
+}
+
+void
+ccnl_set_local_consumer(ccnl_local_func func)
+{
+    _cons_func = func;
 }
 
 int local_producer(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
@@ -545,6 +562,16 @@ int local_producer(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
 {
     if (_prod_func) {
         return _prod_func(relay, from, pkt);
+    }
+    return 0;
+}
+
+int
+local_consumer(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
+                   struct ccnl_pkt_s *pkt)
+{
+    if (_cons_func) {
+        return _cons_func(relay, from, pkt);
     }
     return 0;
 }
