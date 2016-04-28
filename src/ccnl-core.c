@@ -678,7 +678,7 @@ struct ccnl_content_s*
 ccnl_content_remove(struct ccnl_relay_s *ccnl, struct ccnl_content_s *c)
 {
     struct ccnl_content_s *c2;
-    DEBUGMSG_CORE(TRACE, "ccnl_content_remove\n");
+    DEBUGMSG_CORE(TRACE, "ccnl_content_remove %p\n", (void*) c);
 #ifdef CCNL_RIOT
     mutex_lock(&(ccnl->cache_write_lock));
 #endif
