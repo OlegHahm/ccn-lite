@@ -24,6 +24,10 @@
 
 #include "ccnl-ext.h"
 
+#ifdef CCNL_RIOT
+#include "mutex.h"
+#endif
+
 #ifndef USE_NFN
 # define ccnl_nfn_interest_remove(r,i)  ccnl_interest_remove(r,i)
 #endif
@@ -669,6 +673,9 @@ ccnl_content_remove(struct ccnl_relay_s *ccnl, struct ccnl_content_s *c)
 {
     struct ccnl_content_s *c2;
     DEBUGMSG_CORE(TRACE, "ccnl_content_remove\n");
+#ifdef CCNL_RIOT
+    mutex_lock(&(ccnl->cache_write_lock));
+#endif
 
     c2 = c->next;
     DBL_LINKED_LIST_REMOVE(ccnl->contents, c);
@@ -683,6 +690,9 @@ ccnl_content_remove(struct ccnl_relay_s *ccnl, struct ccnl_content_s *c)
     ccnl_free(c);
 
     ccnl->contentcnt--;
+#ifdef CCNL_RIOT
+    mutex_unlock(&(ccnl->cache_write_lock));
+#endif
     return c2;
 }
 
@@ -723,15 +733,24 @@ ccnl_content_add2cache(struct ccnl_relay_s *ccnl, struct ccnl_content_s *c)
             ccnl_content_remove(ccnl, oldest);
         }
     }
-    if ((ccnl->max_cache_entries < 0) ||
+#ifdef CCNL_RIOT
+    mutex_lock(&(ccnl->cache_write_lock));
+#endif
+    if ((ccnl->max_cache_entries == 0) ||
         (ccnl->contentcnt < ccnl->max_cache_entries)) {
         DBL_LINKED_LIST_ADD(ccnl->contents, c);
         ccnl->contentcnt++;
     }
     else {
         DEBUGMSG_CORE(WARNING, " cache is full, cannot add new entry\n");
+#ifdef CCNL_RIOT
+        mutex_unlock(&(ccnl->cache_write_lock));
+#endif
         return NULL;
     }
+#ifdef CCNL_RIOT
+    mutex_unlock(&(ccnl->cache_write_lock));
+#endif
     return c;
 }
 
