@@ -24,6 +24,10 @@
 #ifndef CCNL_CORE
 #define CCNL_CORE
 
+#ifdef CCNL_RIOT
+#include "mutex.h"
+#endif
+
 #define EXACT_MATCH 1
 #define PREFIX_MATCH 0
 
@@ -134,6 +138,10 @@ struct ccnl_relay_s {
 
 #ifdef USE_NFN
     struct ccnl_krivine_s *km;
+#endif
+
+#ifdef CCNL_RIOT
+    mutex_t cache_write_lock;
 #endif
 
   /*

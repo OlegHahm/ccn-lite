@@ -163,7 +163,7 @@ bool ccnl_isSuite(int suite);
 /**
  * @brief Central relay information
  */
-struct ccnl_relay_s ccnl_relay;
+struct ccnl_relay_s ccnl_relay = { .cache_write_lock = MUTEX_INIT };
 
 /**
  * @brief Local loopback face
