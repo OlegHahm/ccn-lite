@@ -96,12 +96,12 @@ struct ccnl_if_s { // interface for packet IO
 #else
     int sock;
 #endif
-    int reflect; // whether to reflect I packets on this interface
-    int fwdalli; // whether to forward all I packets rcvd on this interface
-    int mtu;
+    int8_t reflect; // whether to reflect I packets on this interface
+    int8_t fwdalli; // whether to forward all I packets rcvd on this interface
+    int16_t mtu;
 
-    int qlen;  // number of pending sends
-    int qfront; // index of next packet to send
+    int16_t qlen;  // number of pending sends
+    int16_t qfront; // index of next packet to send
     struct ccnl_txrequest_s queue[CCNL_MAX_IF_QLEN];
     struct ccnl_sched_s *sched;
 
@@ -114,7 +114,7 @@ struct ccnl_relay_s {
 #ifndef CCNL_ARDUINO
     time_t startup_time;
 #endif
-    int id;
+    int8_t id;
     struct ccnl_face_s *faces;
     struct ccnl_forward_s *fib;
     struct ccnl_interest_s *pit;
@@ -125,7 +125,7 @@ struct ccnl_relay_s {
     int pitcnt;
     int max_pit_entries;      // -1: unlimited
     struct ccnl_if_s ifs[CCNL_MAX_INTERFACES];
-    int ifcount;                // number of active interfaces
+    int8_t ifcount;                // number of active interfaces
     char halt_flag;
     struct ccnl_sched_s* (*defaultFaceScheduler)(struct ccnl_relay_s*,
                                                  void(*cts_done)(void*,void*));
@@ -159,13 +159,13 @@ struct ccnl_buf_s {
 
 struct ccnl_prefix_s {
     unsigned char **comp;
-    int *complen;
-    int compcnt;
+    int8_t *complen;
+    int8_t compcnt;
     char suite;
     unsigned char *nameptr; // binary name (for fast comparison)
     ssize_t namelen; // valid length of name memory
     unsigned char *bytes;   // memory for name component copies
-    int *chunknum; // -1 to disable
+    int8_t *chunknum; // -1 to disable
 #ifdef USE_NFN
     unsigned int nfnflags;
 # define CCNL_PREFIX_NFN   0x01
@@ -199,10 +199,10 @@ struct ccnl_frag_s {
 
 struct ccnl_face_s {
     struct ccnl_face_s *next, *prev;
-    int faceid;
-    int ifndx;
+    int8_t faceid;
+    int8_t ifndx;
     sockunion peer;
-    int flags;
+    int8_t flags;
     int last_used; // updated when we receive a packet
     struct ccnl_buf_s *outq, *outqend; // queue of packets to send
     struct ccnl_frag_s *frag;  // which special datagram armoring
@@ -229,7 +229,7 @@ struct ccnl_interest_s {
 #define CCNL_PIT_COREPROPAGATES    0x01
 #define CCNL_PIT_TRACED            0x02
     int last_used;
-    int retries;
+    int8_t retries;
 };
 
 struct ccnl_pendint_s { // pending interest
@@ -283,10 +283,10 @@ struct ccnl_pkt_s {
     struct ccnl_buf_s *buf;        // the packet's bytes
     struct ccnl_prefix_s *pfx;     // prefix/name
     unsigned char *content;        // pointer into the data buffer
-    int contlen;
+    int16_t contlen;
     unsigned int type;   // suite-specific value (outermost type)
     union {
-        int final_block_id;
+        int16_t final_block_id;
         unsigned int seqno;
     } val;
     union {

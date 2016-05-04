@@ -366,7 +366,7 @@ ccnl_prefix_new(int suite, int cnt)
     if (!p)
         return NULL;
     p->comp = (unsigned char**) ccnl_malloc(cnt * sizeof(unsigned char*));
-    p->complen = (int*) ccnl_malloc(cnt * sizeof(int));
+    p->complen = (int8_t*) ccnl_malloc(cnt * sizeof(int));
     if (!p->comp || !p->complen) {
         free_prefix(p);
         return NULL;
@@ -578,7 +578,7 @@ ccnl_URItoPrefix(char* uri, int suite, char *nfnexpr, unsigned int *chunknum)
 #endif
 
     if(chunknum) {
-        p->chunknum = (int*) ccnl_malloc(sizeof(int));
+        p->chunknum = (int8_t*) ccnl_malloc(sizeof(int));
         *p->chunknum = *chunknum;
     }
 
@@ -617,7 +617,7 @@ ccnl_prefix_dup(struct ccnl_prefix_s *prefix)
     }
 
     if (prefix->chunknum) {
-        p->chunknum = (int*) ccnl_malloc(sizeof(int));
+        p->chunknum = (int8_t*) ccnl_malloc(sizeof(int));
         *p->chunknum = *prefix->chunknum;
     }
 
@@ -630,7 +630,7 @@ ccnl_prefix_appendCmp(struct ccnl_prefix_s *prefix, unsigned char *cmp,
                       int cmplen)
 {
     int lastcmp = prefix->compcnt, i;
-    int *oldcomplen = prefix->complen;
+    int8_t *oldcomplen = prefix->complen;
     unsigned char **oldcomp = prefix->comp;
     unsigned char *oldbytes = prefix->bytes;
 
@@ -644,7 +644,7 @@ ccnl_prefix_appendCmp(struct ccnl_prefix_s *prefix, unsigned char *cmp,
 
     prefix->compcnt++;
     prefix->comp = (unsigned char**) ccnl_malloc(prefix->compcnt * sizeof(unsigned char*));
-    prefix->complen = (int*) ccnl_malloc(prefix->compcnt * sizeof(int));
+    prefix->complen = (int8_t*) ccnl_malloc(prefix->compcnt * sizeof(int));
     prefix->bytes = (unsigned char*) ccnl_malloc(prefixlen + cmplen);
 
     memcpy(prefix->bytes, oldbytes, prefixlen);
@@ -688,7 +688,7 @@ ccnl_prefix_addChunkNum(struct ccnl_prefix_s *prefix, unsigned int chunknum)
                 return -1;
             if (prefix->chunknum)
                 ccnl_free(prefix->chunknum);
-            prefix->chunknum = (int*) ccnl_malloc(sizeof(int));
+            prefix->chunknum = (int8_t*) ccnl_malloc(sizeof(int));
             *prefix->chunknum = chunknum;
         }
         break;
