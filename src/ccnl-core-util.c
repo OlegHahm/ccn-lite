@@ -138,12 +138,9 @@ ccnl_prefix_cmp(struct ccnl_prefix_s *pfx, unsigned char *md,
     int i, clen, plen = pfx->compcnt + (md ? 1 : 0), rc = -1;
     unsigned char *comp;
 
-    char *s1 = NULL, *s2 = NULL;
     DEBUGMSG(VERBOSE, "prefix_cmp(mode=%s) prefix=<%s> of? name=<%s> digest=%p\n",
              ccnl_matchMode2str(mode),
-             (s1 = ccnl_prefix_to_path(pfx)), (s2 = ccnl_prefix_to_path(nam)), (void *) md);
-    ccnl_free(s1);
-    ccnl_free(s2);
+             ccnl_prefix_to_path(pfx), ccnl_prefix_to_path(nam), (void *) md);
 
     if (mode == CMP_EXACT) {
         if (plen != nam->compcnt)
@@ -182,14 +179,11 @@ ccnl_i_prefixof_c(struct ccnl_prefix_s *prefix,
     unsigned char *md;
     struct ccnl_prefix_s *p = c->pkt->pfx;
 
-    char *s1 = NULL, *s2 = NULL;
     DEBUGMSG(VERBOSE, "ccnl_i_prefixof_c prefix=<%s> content=<%s> min=%d max=%d\n",
-             (s1 = ccnl_prefix_to_path(prefix)), (s2 = ccnl_prefix_to_path(p)),
+             ccnl_prefix_to_path(prefix), ccnl_prefix_to_path(p),
              // ccnl_prefix_to_path_detailed(prefix,1,0,0),
              // ccnl_prefix_to_path_detailed(p,1,0,0),
              minsuffix, maxsuffix);
-    ccnl_free(s1);
-    ccnl_free(s2);
     // CONFORM: we do prefix match, honour min. and maxsuffix,
 
     // NON-CONFORM: "Note that to match a ContentObject must satisfy
@@ -951,10 +945,8 @@ ccnl_fib_add_entry(struct ccnl_relay_s *relay, struct ccnl_prefix_s *pfx,
 {
     struct ccnl_forward_s *fwd, **fwd2;
 
-    char *s = NULL;
     DEBUGMSG_CUTL(INFO, "adding FIB for <%s>, suite %s\n",
-             (s = ccnl_prefix_to_path(pfx)), ccnl_suite2str(pfx->suite));
-    ccnl_free(s);
+             ccnl_prefix_to_path(pfx), ccnl_suite2str(pfx->suite));
 
     for (fwd = relay->fib; fwd; fwd = fwd->next) {
         if (fwd->suite == pfx->suite &&
@@ -990,10 +982,8 @@ ccnl_fib_rem_entry(struct ccnl_relay_s *relay, struct ccnl_prefix_s *pfx,
     int res = -1;
 
     if (pfx != NULL) {
-        char *s = NULL;
         DEBUGMSG_CUTL(INFO, "removing FIB for <%s>, suite %s\n",
-                      (s = ccnl_prefix_to_path(pfx)), ccnl_suite2str(pfx->suite));
-        ccnl_free(s);
+                      ccnl_prefix_to_path(pfx), ccnl_suite2str(pfx->suite));
     }
 
     struct ccnl_forward_s *last = NULL;
@@ -1035,9 +1025,8 @@ ccnl_fib_show(struct ccnl_relay_s *relay)
 #endif
            );
     puts("-------------------------------|------------|-----------|------------------------------------");
-    char *s = NULL;
     for (fwd = relay->fib; fwd; fwd = fwd->next) {
-        printf("%-30s | %-10s |        %02i | %s\n", (s = ccnl_prefix_to_path(fwd->prefix)),
+        printf("%-30s | %-10s |        %02i | %s\n", ccnl_prefix_to_path(fwd->prefix),
                                      ccnl_suite2str(fwd->suite), (int)
                                      /* TODO: show correct interface instead of always 0 */
 #ifdef CCNL_RIOT
@@ -1046,7 +1035,6 @@ ccnl_fib_show(struct ccnl_relay_s *relay)
                                      (relay->ifs[0]).sock,
 #endif
                                      ccnl_addr2ascii(&fwd->face->peer));
-        ccnl_free(s);
     }
 #endif
 }
@@ -1056,7 +1044,7 @@ ccnl_fib_show(struct ccnl_relay_s *relay)
 #ifndef CCNL_LINUXKERNEL
 
 char*
-ccnl_prefix_to_path_detailed(struct ccnl_prefix_s *pr, int ccntlv_skip,
+ccnl_prefix_to_path_detailed(char *buf, struct ccnl_prefix_s *pr, int ccntlv_skip,
                              int escape_components, int call_slash)
 {
     (void) ccntlv_skip;
@@ -1089,11 +1077,6 @@ ccnl_prefix_to_path_detailed(struct ccnl_prefix_s *pr, int ccntlv_skip,
     else
         buf = prefix_buf2;
     */
-    char *buf = (char*) ccnl_malloc(PREFIX_BUFSIZE);
-    if (buf == NULL) {
-        DEBUGMSG_CUTL(ERROR, "ccnl_prefix_to_path_detailed: malloc failed, exiting\n");
-        return NULL;
-    }
 
 #ifdef USE_NFN
     if (pr->nfnflags & CCNL_PREFIX_NFN)
@@ -1243,10 +1226,8 @@ ccnl_mkSimpleContent(struct ccnl_prefix_s *name,
     unsigned char *tmp;
     int len = 0, contentpos = 0, offs;
 
-    char *s = NULL;
     DEBUGMSG_CUTL(DEBUG, "mkSimpleContent (%s, %d bytes)\n",
-             (s = ccnl_prefix_to_path(name)), paylen);
-    ccnl_free(s);
+             ccnl_prefix_to_path(name), paylen);
 
     tmp = (unsigned char*) ccnl_malloc(CCNL_MAX_PACKET_SIZE);
     offs = CCNL_MAX_PACKET_SIZE;

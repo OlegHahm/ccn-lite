@@ -96,6 +96,11 @@ static msg_t _msg_queue[CCNL_QUEUE_SIZE];
 static char _ccnl_stack[CCNL_STACK_SIZE];
 
 /**
+ * @brief buffer for string representation of a prefix
+ */
+static char _ccnl_prefix_str[CCNL_PREFIX_BUFSIZE];
+
+/**
  * PID of the eventloop thread
  */
 static kernel_pid_t _ccnl_event_loop_pid = KERNEL_PID_UNDEF;
@@ -132,9 +137,9 @@ struct ccnl_interest_s* ccnl_interest_remove(struct ccnl_relay_s *ccnl,
                      struct ccnl_interest_s *i);
 int ccnl_pkt2suite(unsigned char *data, int len, int *skip);
 
-char* ccnl_prefix_to_path_detailed(struct ccnl_prefix_s *pr,
+char* ccnl_prefix_to_path_detailed(char *buf, struct ccnl_prefix_s *pr,
                     int ccntlv_skip, int escape_components, int call_slash);
-#define ccnl_prefix_to_path(P) ccnl_prefix_to_path_detailed(P, 1, 0, 0)
+#define ccnl_prefix_to_path(P) ccnl_prefix_to_path_detailed(_ccnl_prefix_str, P, 1, 0, 0)
 
 char* ccnl_addr2ascii(sockunion *su);
 void ccnl_core_addToCleanup(struct ccnl_buf_s *buf);
