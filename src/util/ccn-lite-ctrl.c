@@ -724,7 +724,7 @@ mkAddToRelayCacheRequest(unsigned char *out, char *fname,
         return -1;
     }
     DEBUGMSG(DEBUG, "  prefix in file: <%s>\n", ccnl_prefix_to_path(prefix));
-    prefix_string = ccnl_prefix_to_path_detailed(prefix, 0, 1, 1);
+    prefix_string = ccnl_prefix_to_path_detailed(_ccnl_prefix_str, prefix, 0, 1, 1);
 
     //Create ccn-lite-ctrl interest object with signature to add content...
     //out = (unsigned char *) malloc(sizeof(unsigned char)*fsize + 5000);
