@@ -1042,11 +1042,16 @@ ccnl_fib_show(struct ccnl_relay_s *relay)
 // ----------------------------------------------------------------------
 
 #ifndef CCNL_LINUXKERNEL
+static bool _in_prefix_to_path = false;
 
 char*
 ccnl_prefix_to_path_detailed(char *buf, struct ccnl_prefix_s *pr, int ccntlv_skip,
                              int escape_components, int call_slash)
 {
+    if (_in_prefix_to_path) {
+        puts("\n\n\nALARM!\n\n\n");
+    }
+    _in_prefix_to_path = true;
     (void) ccntlv_skip;
     (void) call_slash;
     int len = 0, i, j;
@@ -1155,6 +1160,7 @@ One possibility is to not have a '/' before any nfn expression.
 
     buf[len] = '\0';
 
+    _in_prefix_to_path = false;
     return buf;
 }
 
