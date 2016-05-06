@@ -292,7 +292,7 @@ ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
                                     DEBUGMSG(ERROR, "error: unable to get address for if=<%u>\n", (unsigned) ifc->if_pid);
                                     return;
                                 }
-                                if (memcmp(&hwaddr, dest->linklayer.sll_addr, dest->linklayer.sll_halen) == 0) {
+                                if (memcmp(hwaddr, dest->linklayer.sll_addr, dest->linklayer.sll_halen) == 0) {
                                     DEBUGMSG(DEBUG, "loopback packet\n");
                                     /* build link layer header */
                                     hdr = gnrc_netif_hdr_build(NULL, dest->linklayer.sll_halen,
