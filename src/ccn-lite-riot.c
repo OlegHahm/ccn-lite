@@ -292,7 +292,7 @@ ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
                                     DEBUGMSG(ERROR, "error: unable to get address for if=<%u>\n", (unsigned) ifc->if_pid);
                                     return;
                                 }
-                                if (memcmp(&hwaddr, &dest->linklayer.sll_addr, dest->linklayer.sll_halen) == 0) {
+                                if (memcmp(&hwaddr, dest->linklayer.sll_addr, dest->linklayer.sll_halen) == 0) {
                                     DEBUGMSG(DEBUG, "loopback packet\n");
                                     /* build link layer header */
                                     hdr = gnrc_netif_hdr_build(NULL, dest->linklayer.sll_halen,
@@ -417,7 +417,7 @@ _receive(struct ccnl_relay_s *ccnl, msg_t *m)
     memset(&su, 0, sizeof(su));
     su.sa.sa_family = AF_PACKET;
     su.linklayer.sll_halen = nethdr->src_l2addr_len;
-    memcpy(&su.linklayer.sll_addr, gnrc_netif_hdr_get_src_addr(nethdr), nethdr->src_l2addr_len);
+    memcpy(su.linklayer.sll_addr, gnrc_netif_hdr_get_src_addr(nethdr), nethdr->src_l2addr_len);
 
     /* call CCN-lite callback and free memory in packet buffer */
     ccnl_core_RX(ccnl, i, ccn_pkt->data, ccn_pkt->size, &su.sa, sizeof(su.sa));
