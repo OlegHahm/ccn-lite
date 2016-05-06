@@ -273,6 +273,7 @@ ccnl_ll_TX(struct ccnl_relay_s *ccnl, struct ccnl_if_s *ifc,
     /* reset ageing timer */
     xtimer_remove(&_ageing_timer);
     xtimer_set_msg(&_ageing_timer, SEC_IN_USEC, &_ageing_reset, _ccnl_event_loop_pid);
+    DEBUGMSG(TRACE, "ccnl_ll_TX: reset timer\n");
 
     switch(dest->sa.sa_family) {
         /* link layer sending */
