@@ -475,15 +475,16 @@ _receive(struct ccnl_relay_s *ccnl, msg_t *m)
 static int _set(uint16_t ctx, void *value, size_t len)
 {
     struct ccnl_interest_s *i;
+    struct ccnl_relay_s *ccnl;
     switch (ctx) {
-        case CCNL_CTX_CLEAR_PIT:
-            DEBUGMSG(DEBUG, "ccn-lite: set CCNL_CLEAR_PIT\n");
+        case CCNL_CTX_CLEAR_PIT_OWN:
+            DEBUGMSG(DEBUG, "ccn-lite: set CCNL_CLEAR_PIT_OWN\n");
             if (len != sizeof(struct ccnl_relay_s)) {
                 DEBUGMSG(ERROR, "ccn-lite: value has wrong length!\n");
                 return -EINVAL;
             }
 
-            struct ccnl_relay_s *ccnl = value;
+            ccnl = value;
             i = ccnl->pit;
             while (i) {
                 struct ccnl_content_s *c = ccnl->contents;
@@ -507,6 +508,46 @@ static int _set(uint16_t ctx, void *value, size_t len)
                     }
                 }
                 LOG_DEBUG("ccnl_helper: next PIT is :%p\n", (void*) i->next);
+                i = i->next;
+                if ((i == NULL) && (ccnl_relay.pit != NULL)) {
+                    DEBUGMSG(WARNING, "ccn-lite: pointer is null, reset it\n");
+                    i = ccnl_relay.pit;
+                }
+            }
+            break;
+        case CCNL_CTX_CLEAR_PIT_BUT_OWN:
+            DEBUGMSG(DEBUG, "ccn-lite: set CCNL_CTX_CLEAR_PIT_BUT_OWN\n");
+            if (len != sizeof(struct ccnl_relay_s)) {
+                DEBUGMSG(ERROR, "ccn-lite: value has wrong length!\n");
+                return -EINVAL;
+            }
+
+            ccnl = value;
+            i = ccnl->pit;
+            while (i) {
+                struct ccnl_content_s *c = ccnl->contents;
+                while (c) {
+                    DEBUGMSG(DEBUG, "ccnl_helper: compare %p (%p) to %p (%p)\n", (void*) c, (void*) c->pkt, (void*) i, (void*) i->pkt);
+                    if (ccnl_prefix_cmp(c->pkt->pfx, NULL, i->pkt->pfx, CMP_EXACT) == 0) {
+                        break;
+                    }
+                    c = c->next;
+                }
+                if (c == NULL) {
+                    DEBUGMSG(DEBUG, "ccn-lite: no cache entry found, remove it\n");
+                    i = ccnl_interest_remove(&ccnl_relay, i);
+                }
+                if (i == NULL) {
+                    DEBUGMSG(WARNING, "ccn-lite: pointer is null, reset it\n");
+                    if (ccnl->pit != NULL) {
+                        i = ccnl->pit;
+                    }
+                    else {
+                        DEBUGMSG(INFO, "ccn-lite: PIT is empty\n");
+                        break;
+                    }
+                }
+                LOG_DEBUG("ccnl_helper: next PIT is :%p (%p)\n", (void*) i->next, (void*) i);
                 i = i->next;
                 if ((i == NULL) && (ccnl_relay.pit != NULL)) {
                     DEBUGMSG(WARNING, "ccn-lite: pointer is null, reset it\n");
