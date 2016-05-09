@@ -103,7 +103,9 @@ static char _ccnl_stack[CCNL_STACK_SIZE];
 /**
  * @brief buffer for string representation of a prefix
  */
-static char _ccnl_prefix_str[CCNL_PREFIX_BUFSIZE];
+static char _ccnl_prefix_str1[CCNL_PREFIX_BUFSIZE];
+static char _ccnl_prefix_str2[CCNL_PREFIX_BUFSIZE];
+static char *_ccnl_prefix_str = _ccnl_prefix_str1;
 
 /**
  * PID of the eventloop thread
@@ -154,7 +156,16 @@ int ccnl_pkt2suite(unsigned char *data, int len, int *skip);
 
 char* ccnl_prefix_to_path_detailed(char *buf, struct ccnl_prefix_s *pr,
                     int ccntlv_skip, int escape_components, int call_slash);
-#define ccnl_prefix_to_path(P) ccnl_prefix_to_path_detailed(_ccnl_prefix_str, P, 1, 0, 0)
+static inline char *ccnl_prefix_to_path(struct ccnl_prefix_s *p)
+{
+    if (_ccnl_prefix_str == _ccnl_prefix_str1) {
+        _ccnl_prefix_str = _ccnl_prefix_str2;
+    }
+    else {
+        _ccnl_prefix_str = _ccnl_prefix_str1;
+    }
+    return ccnl_prefix_to_path_detailed(_ccnl_prefix_str, p, 1, 0, 0);
+}
 
 char* ccnl_addr2ascii(sockunion *su);
 void ccnl_core_addToCleanup(struct ccnl_buf_s *buf);
