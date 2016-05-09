@@ -1048,10 +1048,6 @@ char*
 ccnl_prefix_to_path_detailed(char *buf, struct ccnl_prefix_s *pr, int ccntlv_skip,
                              int escape_components, int call_slash)
 {
-    if (_in_prefix_to_path != NULL) {
-        puts("\n\n\nALARM!\n\n\n");
-    }
-    _in_prefix_to_path = buf;
     (void) ccntlv_skip;
     (void) call_slash;
     int len = 0, i, j;
@@ -1121,6 +1117,11 @@ One possibility is to not have a '/' before any nfn expression.
                          ))
         skip = 4;
 #endif
+
+    if (_in_prefix_to_path != NULL) {
+        puts("\n\n\nALARM!\n\n\n");
+    }
+    _in_prefix_to_path = buf;
 
     for (i = 0; i < pr->compcnt; i++) {
 #ifdef USE_NFN
