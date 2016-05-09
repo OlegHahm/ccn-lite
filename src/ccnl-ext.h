@@ -38,9 +38,6 @@ struct ccnl_interest_s* ccnl_interest_remove(struct ccnl_relay_s *ccnl,
 #ifndef CCNL_LINUXKERNEL
    char* ccnl_prefix_to_path_detailed(char *buf, struct ccnl_prefix_s *pr,
                     int ccntlv_skip, int escape_components, int call_slash);
-#   ifndef ccnl_prefix_to_path
-#       define ccnl_prefix_to_path(P) ccnl_prefix_to_path_detailed(_ccnl_prefix_str, P, 1, 0, 0)
-#   endif
 #else
    char* ccnl_prefix_to_path(struct ccnl_prefix_s *pr);
 #endif
