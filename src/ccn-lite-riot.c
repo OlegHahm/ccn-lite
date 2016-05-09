@@ -460,6 +460,82 @@ _receive(struct ccnl_relay_s *ccnl, msg_t *m)
     gnrc_pktbuf_release(pkt);
 }
 
+static int _set(uint16_t ctx, void *value, size_t len)
+{
+    struct ccnl_interest_s *i;
+    switch (ctx) {
+        case CCNL_CTX_CLEAR_PIT:
+            DEBUGMSG(DEBUG, "ccn-lite: set CCNL_CLEAR_PIT\n");
+            if (len != sizeof(struct ccnl_relay_s)) {
+                DEBUGMSG(ERROR, "ccn-lite: value has wrong length!\n");
+                return -EINVAL;
+            }
+
+            struct ccnl_relay_s *ccnl = value;
+            i = ccnl->pit;
+            while (i) {
+                struct ccnl_content_s *c = ccnl->contents;
+                while (c) {
+                    DEBUGMSG(DEBUG, "ccnl_helper: compare %p (%p) to %p (%p)\n", (void*) c, (void*) c->pkt, (void*) i, (void*) i->pkt);
+                    if (ccnl_prefix_cmp(c->pkt->pfx, NULL, i->pkt->pfx, CMP_EXACT) == 0) {
+                        DEBUGMSG(DEBUG, "ccnl_helper: found entry, remove it\n");
+                        i = ccnl_interest_remove(&ccnl_relay, i);
+                        break;
+                    }
+                    c = c->next;
+                }
+                if (i == NULL) {
+                    DEBUGMSG(WARNING, "ccn-lite: pointer is null, reset it\n");
+                    if (ccnl->pit != NULL) {
+                        i = ccnl->pit;
+                    }
+                    else {
+                        DEBUGMSG(INFO, "ccn-lite: PIT is empty\n");
+                        break;
+                    }
+                }
+                LOG_DEBUG("ccnl_helper: next PIT is :%p\n", (void*) i->next);
+                i = i->next;
+                if ((i == NULL) && (ccnl_relay.pit != NULL)) {
+                    DEBUGMSG(WARNING, "ccn-lite: pointer is null, reset it\n");
+                    i = ccnl_relay.pit;
+                }
+            }
+            break;
+        case CCNL_CTX_REMOVE_FIRST_PIT_ENTRY:
+            DEBUGMSG(DEBUG, "ccn-lite: set CCNL_REMOVE_FIRST_PIT_ENTRY\n");
+            struct ccnl_prefix_s *prefix;
+            char *pfx = (char*) value;
+
+            DEBUGMSG(DEBUG, "ccn-lite: search for PIT entry for name %s\n", pfx);
+            prefix = ccnl_URItoPrefix(pfx, CCNL_SUITE_NDNTLV, NULL, 0);
+            if (prefix == NULL) {
+                DEBUGMSG(ERROR, "ccnl_helper: We're doomed, WE ARE ALL DOOMED!\n");
+                return -ENOMEM;
+            }
+
+            /* XXX: works only for default relay */
+            i = ccnl_relay.pit;
+            while (i) {
+                if (ccnl_prefix_cmp(prefix, NULL, i->pkt->pfx, CMP_MATCH) >= 1) {
+                    DEBUGMSG(DEBUG, "ccnl_helper: remove PIT entry\n");
+                    ccnl_interest_remove(&ccnl_relay, i);
+                    free_prefix(prefix);
+                    return 0;
+                }
+                i = i->next;
+            }
+            free_prefix(prefix);
+            DEBUGMSG(WARNING, "ccn-lite: no entry found\n");
+
+            break;
+        default:
+            DEBUGMSG(WARNING, "ccn-lite: unknown option, cannot set\n");
+            break;
+    }
+    return 0;
+}
+
 /* the main event-loop */
 void
 *_ccnl_event_loop(void *arg)
@@ -497,8 +573,28 @@ void
                 gnrc_pktbuf_release(pkt);
                 break;
 
-            case GNRC_NETAPI_MSG_TYPE_GET:
             case GNRC_NETAPI_MSG_TYPE_SET:
+                {
+                int res;
+                gnrc_netapi_opt_t *opt = (gnrc_netapi_opt_t *)m.content.ptr;
+                DEBUGMSG(DEBUG, "ccn-lite: GNRC_NETAPI_MSG_TYPE_SET received. "
+                         "opt=%s\n", netopt2str(opt->opt));
+                if (opt->opt != NETOPT_CCN) {
+                    DEBUGMSG(WARNING, "ccn-lite: wrong option type, discard message\n");
+                    res = -ENOTSUP;
+                }
+                else {
+                    res = _set(opt->context, opt->data, opt->data_len);
+                    DEBUGMSG(DEBUG, "ccn-lite: response of set: %i\n", res);
+                }
+                /* send reply to calling thread */
+                reply.type = GNRC_NETAPI_MSG_TYPE_ACK;
+                reply.content.value = (uint32_t)res;
+                msg_reply(&m, &reply);
+                break;
+                }
+
+            case GNRC_NETAPI_MSG_TYPE_GET:
                 DEBUGMSG(DEBUG, "ccn-lite: reply to unsupported get/set\n");
                 reply.content.value = -ENOTSUP;
                 msg_reply(&m, &reply);
