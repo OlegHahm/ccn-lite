@@ -1133,8 +1133,9 @@ One possibility is to not have a '/' before any nfn expression.
         skip = 4;
 #endif
 
-    if (_in_prefix_to_path != NULL) {
-        puts("\n\n\nALARM!\n\n\n");
+    char *old_buf = _in_prefix_to_path;
+    if (_in_prefix_to_path == buf) {
+        printf("\n\n\nALARM!\n\n\n");
     }
     _in_prefix_to_path = buf;
 
@@ -1176,7 +1177,7 @@ One possibility is to not have a '/' before any nfn expression.
 
     buf[len] = '\0';
 
-    _in_prefix_to_path = NULL;
+    _in_prefix_to_path = old_buf;
     return buf;
 }
 
