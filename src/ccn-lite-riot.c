@@ -148,13 +148,14 @@ char* ccnl_prefix_to_path_detailed(char *buf, struct ccnl_prefix_s *pr,
                     int ccntlv_skip, int escape_components, int call_slash);
 static inline char *ccnl_prefix_to_path(struct ccnl_prefix_s *p)
 {
-    if (_ccnl_prefix_str == _ccnl_prefix_str1) {
-        _ccnl_prefix_str = _ccnl_prefix_str2;
-    }
-    else {
+    if (sched_active_pid == _ccnl_event_loop_pid) {
         _ccnl_prefix_str = _ccnl_prefix_str1;
     }
-    return ccnl_prefix_to_path_detailed(_ccnl_prefix_str, p, 1, 0, 0);
+    else {
+        _ccnl_prefix_str = _ccnl_prefix_str2;
+    }
+    char *res = ccnl_prefix_to_path_detailed(_ccnl_prefix_str, p, 1, 0, 0);
+    return res;
 }
 
 char* ccnl_addr2ascii(sockunion *su);
