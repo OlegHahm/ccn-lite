@@ -167,7 +167,7 @@ ccnl_prefix_cmp(struct ccnl_prefix_s *pfx, unsigned char *md,
     // FIXME: we must also inspect chunknum here!
     rc = (mode == CMP_EXACT) ? 0 : i;
 done:
-    DEBUGMSG(TRACE, "  cmp result: pfxlen=%d cmplen=%d namlen=%d matchlen=%d\n",
+    DEBUGMSG(VERBOSE, "  cmp result: pfxlen=%d cmplen=%d namlen=%d matchlen=%d\n",
              pfx->compcnt, plen, nam->compcnt, rc);
     return rc;
 }
