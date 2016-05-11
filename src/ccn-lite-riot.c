@@ -510,8 +510,7 @@ static int _set(uint16_t ctx, void *value, size_t len)
                 LOG_DEBUG("ccnl_helper: next PIT is :%p\n", (void*) i->next);
                 i = i->next;
                 if ((i == NULL) && (ccnl_relay.pit != NULL)) {
-                    DEBUGMSG(WARNING, "ccn-lite: pointer is null, reset it\n");
-                    i = ccnl_relay.pit;
+                    DEBUGMSG(WARNING, "ccn-lite: pointer is null, break here\n");
                 }
             }
             break;
@@ -550,8 +549,8 @@ static int _set(uint16_t ctx, void *value, size_t len)
                 LOG_DEBUG("ccnl_helper: next PIT is :%p (%p)\n", (void*) i->next, (void*) i);
                 i = i->next;
                 if ((i == NULL) && (ccnl_relay.pit != NULL)) {
-                    DEBUGMSG(WARNING, "ccn-lite: pointer is null, reset it\n");
-                    i = ccnl_relay.pit;
+                    DEBUGMSG(WARNING, "ccn-lite: pointer is null, break here\n");
+                    break;
                 }
             }
             break;
