@@ -64,7 +64,7 @@ ccnl_fwd_handleContent(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
     }
 
     c = ccnl_content_new(relay, pkt);
-    DEBUGMSG_CFWD(INFO, "data after creating packet %.*s\n", c->pkt->contlen, c->pkt->content);
+    DEBUGMSG_CFWD(INFO, "data after creating packet %s\n", c->pkt->content);
     if (!c)
         return 0;
 
@@ -89,7 +89,7 @@ ccnl_fwd_handleContent(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
             free_content(c);
             return 0;
         }
-    	DEBUGMSG_CFWD(INFO, "data after creating packet %.*s\n", c->pkt->contlen, c->pkt->content);
+        DEBUGMSG_CFWD(INFO, "data after creating packet %s\n", c->pkt->content);
     } else {
         DEBUGMSG_CFWD(DEBUG, "  content not added to cache\n");
         free_content(c);
