@@ -575,6 +575,8 @@ static int _set(uint16_t ctx, void *value, size_t len)
     return 0;
 }
 
+static msg_t ccnl_reply;
+static msg_t ccnl_age_msg;
 /* the main event-loop */
 void
 *_ccnl_event_loop(void *arg)
@@ -587,11 +589,11 @@ void
     random_init(0x4);
 
     while(!ccnl->halt_flag) {
-        msg_t m, reply;
+        msg_t m;
         /* start periodic timer */
         xtimer_remove(&_ageing_timer);
-        reply.type = CCNL_MSG_AGEING;
-        xtimer_set_msg(&_ageing_timer, SEC_IN_USEC, &reply, sched_active_pid);
+        ccnl_age_msg.type = CCNL_MSG_AGEING;
+        xtimer_set_msg(&_ageing_timer, SEC_IN_USEC, &ccnl_age_msg, sched_active_pid);
         DEBUGMSG(VERBOSE, "ccn-lite: waiting for incoming message.\n");
         msg_receive(&m);
 
@@ -620,16 +622,17 @@ void
                     DEBUGMSG(DEBUG, "ccn-lite: response of set: %i\n", res);
                 }
                 /* send reply to calling thread */
-                reply.type = GNRC_NETAPI_MSG_TYPE_ACK;
-                reply.content.value = (uint32_t)res;
-                msg_reply(&m, &reply);
+                ccnl_reply.type = GNRC_NETAPI_MSG_TYPE_ACK;
+                ccnl_reply.content.value = (uint32_t)res;
+                msg_reply(&m, &ccnl_reply);
                 break;
                 }
 
             case GNRC_NETAPI_MSG_TYPE_GET:
                 DEBUGMSG(DEBUG, "ccn-lite: reply to unsupported get/set\n");
-                reply.content.value = -ENOTSUP;
-                msg_reply(&m, &reply);
+                ccnl_reply.type = GNRC_NETAPI_MSG_TYPE_ACK;
+                ccnl_reply.content.value = -ENOTSUP;
+                msg_reply(&m, &ccnl_reply);
                 break;
             case CCNL_MSG_AGEING:
                 DEBUGMSG(VERBOSE, "ccn-lite: ageing timer\n");
