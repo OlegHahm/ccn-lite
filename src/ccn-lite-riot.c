@@ -680,7 +680,7 @@ ccnl_start(void)
     ccnl_relay.max_pit_entries = CCNL_DEFAULT_MAX_PIT_ENTRIES;
     /* start the CCN-Lite event-loop */
     _ccnl_event_loop_pid =  thread_create(_ccnl_stack, sizeof(_ccnl_stack),
-                                          THREAD_PRIORITY_MAIN - 1,
+                                          THREAD_PRIORITY_MAIN - 2,
                                           THREAD_CREATE_STACKTEST, _ccnl_event_loop,
                                           &ccnl_relay, "ccnl");
     return _ccnl_event_loop_pid;
