@@ -457,7 +457,8 @@ _receive(struct ccnl_relay_s *ccnl, msg_t *m)
     gnrc_pktbuf_release(pkt);
 }
 
-static int _set(uint16_t ctx, void *value, size_t len)
+static int
+_set(uint16_t ctx, void *value, size_t len)
 {
     struct ccnl_interest_s *i;
     struct ccnl_relay_s *ccnl;
@@ -573,6 +574,37 @@ static int _set(uint16_t ctx, void *value, size_t len)
     return 0;
 }
 
+static int
+_get(uint16_t ctx, void *value, size_t len)
+{
+    struct ccnl_content_s *c;
+    struct ccnl_relay_s *ccnl;
+    switch (ctx) {
+        case CCNL_CTX_PRINT_CS:
+            DEBUGMSG(DEBUG, "ccn-lite: get CCNL_CTX_PRINT_CS\n");
+            if (len != sizeof(struct ccnl_relay_s)) {
+                DEBUGMSG(ERROR, "ccn-lite: value has wrong length!\n");
+                return -EINVAL;
+            }
+
+            ccnl = value;
+            c = ccnl->contents;
+            unsigned i = 0;
+            while (c) {
+                printf("CS[%u]: %s [%d]: %s\n", i++,
+                       ccnl_prefix_to_path(c->pkt->pfx),
+                       (c->pkt->pfx->chunknum)? *(c->pkt->pfx->chunknum) : -1,
+                       c->pkt->content);
+                c = c->next;
+            }
+            break;
+        default:
+            DEBUGMSG(WARNING, "ccn-lite: unknown option, cannot deliver\n");
+    }
+
+    return 0;
+}
+
 static msg_t ccnl_reply;
 static msg_t ccnl_age_msg;
 /* the main event-loop */
@@ -627,11 +659,25 @@ void
                 }
 
             case GNRC_NETAPI_MSG_TYPE_GET:
-                DEBUGMSG(DEBUG, "ccn-lite: reply to unsupported get/set\n");
+                {
+                int res;
+                gnrc_netapi_opt_t *opt = (gnrc_netapi_opt_t *)m.content.ptr;
+                DEBUGMSG(DEBUG, "ccn-lite: GNRC_NETAPI_MSG_TYPE_SET received. "
+                         "opt=%s\n", netopt2str(opt->opt));
+                if (opt->opt != NETOPT_CCN) {
+                    DEBUGMSG(WARNING, "ccn-lite: wrong option type, discard message\n");
+                    res = -ENOTSUP;
+                }
+                else {
+                    res = _get(opt->context, opt->data, opt->data_len);
+                    DEBUGMSG(DEBUG, "ccn-lite: response of set: %i\n", res);
+                }
+                /* send reply to calling thread */
                 ccnl_reply.type = GNRC_NETAPI_MSG_TYPE_ACK;
-                ccnl_reply.content.value = -ENOTSUP;
+                ccnl_reply.content.value = (uint32_t)res;
                 msg_reply(&m, &ccnl_reply);
                 break;
+                }
             case CCNL_MSG_AGEING:
                 DEBUGMSG(VERBOSE, "ccn-lite: ageing timer\n");
                 ccnl_do_ageing(arg, NULL);
