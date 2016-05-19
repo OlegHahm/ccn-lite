@@ -577,8 +577,6 @@ _set(uint16_t ctx, void *value, size_t len)
 static int
 _get(uint16_t ctx, void *value, size_t len)
 {
-    struct ccnl_content_s *c;
-    struct ccnl_relay_s *ccnl;
     switch (ctx) {
         case CCNL_CTX_PRINT_CS:
             DEBUGMSG(DEBUG, "ccn-lite: get CCNL_CTX_PRINT_CS\n");
@@ -587,16 +585,7 @@ _get(uint16_t ctx, void *value, size_t len)
                 return -EINVAL;
             }
 
-            ccnl = value;
-            c = ccnl->contents;
-            unsigned i = 0;
-            while (c) {
-                printf("CS[%u]: %s [%d]: %s\n", i++,
-                       ccnl_prefix_to_path(c->pkt->pfx),
-                       (c->pkt->pfx->chunknum)? *(c->pkt->pfx->chunknum) : -1,
-                       c->pkt->content);
-                c = c->next;
-            }
+            ccnl_cs_dump(value);
             break;
         default:
             DEBUGMSG(WARNING, "ccn-lite: unknown option, cannot deliver\n");
