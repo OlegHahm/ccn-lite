@@ -726,7 +726,7 @@ ccnl_content_add2cache(struct ccnl_relay_s *ccnl, struct ccnl_content_s *c)
 #ifdef CCNL_RIOT
     mutex_lock(&(ccnl->cache_write_lock));
 #endif
-    if ((ccnl->max_cache_entries == 0) ||
+    if ((ccnl->max_cache_entries < 0) ||
         (ccnl->contentcnt < ccnl->max_cache_entries)) {
         DBL_LINKED_LIST_ADD(ccnl->contents, c);
         ccnl->contentcnt++;
