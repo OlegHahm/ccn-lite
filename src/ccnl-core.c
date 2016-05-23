@@ -731,7 +731,13 @@ ccnl_content_add2cache(struct ccnl_relay_s *ccnl, struct ccnl_content_s *c)
             }
             if (oldest) {
                 DEBUGMSG_CORE(DEBUG, " remove old entry from cache\n");
+#ifdef CCNL_RIOT
+        mutex_unlock(&(ccnl->cache_write_lock));
+#endif
                 ccnl_content_remove(ccnl, oldest);
+#ifdef CCNL_RIOT
+        mutex_lock(&(ccnl->cache_write_lock));
+#endif
             }
         }
     }
