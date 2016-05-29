@@ -32,6 +32,7 @@
 #include "kernel_types.h"
 #include "random.h"
 #include "timex.h"
+#include "ps.h"
 #include "xtimer.h"
 #include "net/gnrc/netreg.h"
 #include "net/gnrc/netif.h"
@@ -782,6 +783,7 @@ struct ccnl_interest_s
 
     if (!prefix) {
         DEBUGMSG(ERROR, "prefix could not be created!\n");
+        ps();
         return NULL;
     }
 
