@@ -827,7 +827,7 @@ ccnl_content_serve_pending(struct ccnl_relay_s *ccnl, struct ccnl_content_s *c)
 
         //Hook for add content to cache by callback:
         if(i && ! i->pending){
-            DEBUGMSG_CORE(WARNING, "releasing interest 0x%p OK?\n", (void*)i);
+            DEBUGMSG_CORE(DEBUG, "releasing interest 0x%p OK?\n", (void*)i);
             i = ccnl_interest_remove(ccnl, i);
             return 1;
         }
