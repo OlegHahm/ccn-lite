@@ -635,6 +635,15 @@ void
 
             case GNRC_NETAPI_MSG_TYPE_SND:
                 DEBUGMSG(DEBUG, "ccn-lite: GNRC_NETAPI_MSG_TYPE_SND received\n");
+                gnrc_pktsnip_t *pkt = (gnrc_pktsnip_t*) m.content.ptr;
+                if (pkt->type != GNRC_NETTYPE_CCN) {
+                    DEBUGMSG(WARNING, "ccn-lite: wrong nettype\n");
+                }
+                else {
+                    ccnl_interest_t *i = (ccnl_interest_t*) pkt->data;
+                    ccnl_send_interest(CCNL_SUITE_NDNTLV, i->name, i->chunknum, i->buf, i->buflen);
+                }
+                gnrc_pktbuf_release(pkt);
                 break;
 
             case GNRC_NETAPI_MSG_TYPE_SET:
