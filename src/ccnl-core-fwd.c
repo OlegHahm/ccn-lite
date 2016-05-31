@@ -100,7 +100,6 @@ ccnl_fwd_handleContent(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
     if ((c->pkt->pfx->chunknum) && (*(c->pkt->pfx->chunknum) >= 0)) {
         struct ccnl_prefix_s *pfx_wo_chunk = ccnl_prefix_dup(c->pkt->pfx);
         pfx_wo_chunk->compcnt--;
-        ccnl_free(pfx_wo_chunk->chunknum);
         pfx_wo_chunk->chunknum = NULL;
         ccnl_fib_add_entry(relay, pfx_wo_chunk, from);
     }
