@@ -166,6 +166,7 @@ struct ccnl_prefix_s {
     ssize_t namelen; // valid length of name memory
     unsigned char *bytes;   // memory for name component copies
     int8_t *chunknum; // -1 to disable
+    int8_t chunknum_buf;
 #ifdef USE_NFN
     unsigned int nfnflags;
 # define CCNL_PREFIX_NFN   0x01
