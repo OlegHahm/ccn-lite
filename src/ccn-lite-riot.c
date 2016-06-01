@@ -452,7 +452,7 @@ _receive(struct ccnl_relay_s *ccnl, msg_t *m)
     }
 
     if (i == ccnl->ifcount) {
-        DEBUGMSG(WARNING, "No matching CCN interface found, assume it's from the default interface\n");
+        DEBUGMSG(DEBUG, "No matching CCN interface found, assume it's from the default interface\n");
         i = 0;
     }
 
