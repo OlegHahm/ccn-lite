@@ -641,7 +641,7 @@ void
                 }
                 else {
                     ccnl_interest_t *i = (ccnl_interest_t*) pkt->data;
-                    ccnl_send_interest(CCNL_SUITE_NDNTLV, i->name, i->chunknum, i->buf, i->buflen);
+                    ccnl_send_interest(i->prefix, i->buf, i->buflen);
                 }
                 gnrc_pktbuf_release(pkt);
                 break;
