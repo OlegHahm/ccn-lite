@@ -358,6 +358,8 @@ ccnl_face_enqueue(struct ccnl_relay_s *ccnl, struct ccnl_face_s *to,
     struct ccnl_buf_s *msg;
     if (buf == NULL) {
         DEBUGMSG_CORE(ERROR, "enqueue face: buf most not be NULL\n");
+        extern void ccnl_pit_size(struct ccnl_relay_s *ccnl);
+        ccnl_pit_size(ccnl);
         void ps(void);
         ps();
         return -1;
@@ -1126,11 +1128,11 @@ ccnl_core_cleanup(struct ccnl_relay_s *ccnl)
 #endif
 }
 
-void ccnl_pit_size(void)
+void ccnl_pit_size(struct ccnl_relay_s *ccnl)
 {
     unsigned size = 0;
     struct ccnl_interest_s *i;
-    for (i = relay->pit; i; i = i->next) {
+    for (i = ccnl->pit; i; i = i->next) {
         size++;
     }
     printf("PIT size: %u\n", size);
