@@ -621,9 +621,7 @@ void
     while(!ccnl->halt_flag) {
         msg_t m;
         /* start periodic timer */
-        xtimer_remove(&_ageing_timer);
         ccnl_age_msg.type = CCNL_MSG_AGEING;
-        xtimer_set_msg(&_ageing_timer, SEC_IN_USEC, &ccnl_age_msg, sched_active_pid);
         DEBUGMSG(VERBOSE, "ccn-lite: waiting for incoming message.\n");
         msg_receive(&m);
 
@@ -690,6 +688,8 @@ void
             case CCNL_MSG_AGEING:
                 DEBUGMSG(VERBOSE, "ccn-lite: ageing timer\n");
                 ccnl_do_ageing(arg, NULL);
+                xtimer_remove(&_ageing_timer);
+                xtimer_set_msg(&_ageing_timer, SEC_IN_USEC, &ccnl_age_msg, sched_active_pid);
                 break;
             default:
                 DEBUGMSG(WARNING, "ccn-lite: unknown message type\n");
