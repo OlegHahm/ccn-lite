@@ -1126,6 +1126,17 @@ ccnl_core_cleanup(struct ccnl_relay_s *ccnl)
 #endif
 }
 
+void ccnl_pit_size(void)
+{
+    unsigned size = 0;
+    struct ccnl_interest_s *i;
+    for (i = relay->pit; i; i = i->next) {
+        size++;
+    }
+    printf("PIT size: %u\n", size);
+}
+
+
 #include "ccnl-core-util.c"
 
 // eof
