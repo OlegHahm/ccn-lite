@@ -800,7 +800,6 @@ struct ccnl_interest_s
 
     if (!prefix) {
         DEBUGMSG(ERROR, "prefix could not be created!\n");
-        ps();
         return NULL;
     }
 
