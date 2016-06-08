@@ -251,7 +251,7 @@ struct ccnl_content_s {
 };
 
 struct ccnl_pktdetail_ccnb_s {
-    int minsuffix, maxsuffix, aok, scope;
+    int8_t minsuffix, maxsuffix, aok, scope;
     struct ccnl_buf_s *nonce;
     struct ccnl_buf_s *ppkd;        // publisher public key digest
 };
@@ -265,7 +265,7 @@ struct ccnl_pktdetail_iottlv_s {
 };
 
 struct ccnl_pktdetail_ndntlv_s {
-    int minsuffix, maxsuffix, mbf, scope;
+    int8_t minsuffix, maxsuffix, mbf, scope;
     struct ccnl_buf_s *nonce;      // nonce
 };
 
@@ -282,10 +282,10 @@ struct ccnl_pkt_s {
     struct ccnl_prefix_s *pfx;     // prefix/name
     unsigned char *content;        // pointer into the data buffer
     int16_t contlen;
-    unsigned int type;   // suite-specific value (outermost type)
+    uint16_t type;   // suite-specific value (outermost type)
     union {
         int16_t final_block_id;
-        unsigned int seqno;
+        uint16_t seqno;
     } val;
     union {
         struct ccnl_pktdetail_ccnb_s   ccnb;
