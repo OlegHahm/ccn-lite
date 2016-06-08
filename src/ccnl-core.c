@@ -360,8 +360,6 @@ ccnl_face_enqueue(struct ccnl_relay_s *ccnl, struct ccnl_face_s *to,
         DEBUGMSG_CORE(ERROR, "enqueue face: buf most not be NULL\n");
         extern void ccnl_pit_size(struct ccnl_relay_s *ccnl);
         ccnl_pit_size(ccnl);
-        void ps(void);
-        ps();
         return -1;
     }
     DEBUGMSG_CORE(TRACE, "enqueue face=%p (id=%d.%d) buf=%p len=%zd\n",
