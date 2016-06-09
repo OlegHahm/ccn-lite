@@ -1038,10 +1038,8 @@ ccnl_cs_dump(struct ccnl_relay_s *ccnl)
     struct ccnl_content_s *c = ccnl->contents;
     unsigned i = 0;
     while (c) {
-        printf("CS[%u]: %s [%d]: %s\n", i++,
-               ccnl_prefix_to_path(c->pkt->pfx),
-               (c->pkt->pfx->chunknum)? *(c->pkt->pfx->chunknum) : -1,
-               c->pkt->content);
+        printf("CS[%u]: %s\n", i++,
+               ccnl_prefix_to_path(c->pkt->pfx));
         c = c->next;
     }
 }
