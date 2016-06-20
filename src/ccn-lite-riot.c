@@ -706,6 +706,8 @@ ccnl_start(void)
 {
     loopback_face = ccnl_get_face_or_create(&ccnl_relay, -1, NULL, 0);
     loopback_face->flags |= CCNL_FACE_FLAGS_STATIC;
+
+    ccnl_relay.max_pit_entries = CCNL_DEFAULT_MAX_PIT_ENTRIES;
     /* start the CCN-Lite event-loop */
     _ccnl_event_loop_pid =  thread_create(_ccnl_stack, sizeof(_ccnl_stack),
                                           THREAD_PRIORITY_MAIN - 2,

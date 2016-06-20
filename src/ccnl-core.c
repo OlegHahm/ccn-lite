@@ -401,6 +401,10 @@ struct ccnl_interest_s*
 ccnl_interest_new(struct ccnl_relay_s *ccnl, struct ccnl_face_s *from,
                   struct ccnl_pkt_s **pkt)
 {
+    if ((ccnl->pitcnt >= 0) &&
+        (ccnl->pitcnt >= ccnl->max_pit_entries)) {
+        return NULL;
+    }
     struct ccnl_interest_s *i = (struct ccnl_interest_s *) ccnl_calloc(1,
                                             sizeof(struct ccnl_interest_s));
     DEBUGMSG_CORE(TRACE,
@@ -416,6 +420,7 @@ ccnl_interest_new(struct ccnl_relay_s *ccnl, struct ccnl_face_s *from,
     i->from = from;
     i->last_used = CCNL_NOW();
     DBL_LINKED_LIST_ADD(ccnl->pit, i);
+    ccnl->pitcnt++;
 
     return i;
 }
@@ -599,6 +604,7 @@ ccnl_interest_remove(struct ccnl_relay_s *ccnl, struct ccnl_interest_s *i)
     }
     i2 = i->next;
     DBL_LINKED_LIST_REMOVE(ccnl->pit, i);
+    ccnl->pitcnt--;
 
     free_packet(i->pkt);
     ccnl_free(i);
