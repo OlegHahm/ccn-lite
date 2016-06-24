@@ -751,7 +751,7 @@ ccnl_content_add2cache(struct ccnl_relay_s *ccnl, struct ccnl_content_s *c)
         ccnl->contentcnt++;
     }
     else {
-        DEBUGMSG_CORE(WARNING, " cache is full, cannot add new entry\n");
+        DEBUGMSG_CORE(DEBUG, " cache is full, cannot add new entry\n");
 #ifdef CCNL_RIOT
         mutex_unlock(&(ccnl->cache_write_lock));
 #endif
