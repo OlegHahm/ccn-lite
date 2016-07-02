@@ -64,7 +64,7 @@ ccnl_fwd_handleContent(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
     }
 
     c = ccnl_content_new(relay, pkt);
-    DEBUGMSG_CFWD(INFO, "data after creating packet %s\n", c->pkt->content);
+    DEBUGMSG_CFWD(INFO, "data after creating packet %p\n", (void*) c->pkt->content);
     if (!c)
         return 0;
 
@@ -89,7 +89,7 @@ ccnl_fwd_handleContent(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
             free_content(c);
             return 0;
         }
-        DEBUGMSG_CFWD(INFO, "data after creating packet %s\n", c->pkt->content);
+        DEBUGMSG_CFWD(INFO, "data after creating packet %p\n", (void*) c->pkt->content);
     } else {
         DEBUGMSG_CFWD(DEBUG, "  content not added to cache\n");
         free_content(c);
@@ -251,19 +251,6 @@ ccnl_fwd_handleInterest(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
         if (ccnl_nfn_RX_request(relay, from, pkt))
             return -1; // this means: everything is ok and pkt was consumed
 #endif
-<<<<<<< HEAD
-        if (!ccnl_pkt_fwdOK(*pkt))
-            return -1;
-        i = ccnl_interest_new(relay, from, pkt);
-        DEBUGMSG_CFWD(DEBUG,
-            "  created new interest entry %p\n", (void *) i);
-        ccnl_interest_propagate(relay, i);
-    } else {
-        if (ccnl_pkt_fwdOK(*pkt) && (from->flags & CCNL_FACE_FLAGS_FWDALLI)) {
-            DEBUGMSG_CFWD(DEBUG, "  old interest, nevertheless propagated %p\n",
-                     (void *) i);
-            ccnl_interest_propagate(relay, i);
-=======
         if (!i) {
             i = ccnl_interest_new(ccnl, from, CCNL_SUITE_CCNB,
                                   &buf, &p, minsfx, maxsfx);
@@ -282,7 +269,6 @@ ccnl_fwd_handleInterest(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
         if (i) { // store the I request, for the incoming face (Step 3)
             DEBUGMSG_CFWD(DEBUG, "  appending interest entry %p\n", (void *) i);
             ccnl_interest_append_pending(i, from);
->>>>>>> origin/arduino
         }
     }
     if (i) { // store the I request, for the incoming face (Step 3)
