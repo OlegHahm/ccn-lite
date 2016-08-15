@@ -43,6 +43,11 @@ ccnl_fwd_handleContent(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
 #endif
     ccnl_free(s);
 
+    if (local_consumer(relay, from, *pkt)) {
+        *pkt = NULL;
+        return 0;
+    }
+
 #if defined(USE_SUITE_CCNB) && defined(USE_SIGNATURES)
 //  FIXME: mgmt messages for NDN and other suites?
         if (pkt->pfx->compcnt == 2 && !memcmp(pkt->pfx->comp[0], "ccnx", 4)

@@ -75,6 +75,11 @@ int local_producer(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
                    struct ccnl_pkt_s *pkt);
 
 /**
+ * @brief May be defined to handle special content, e.g. that should not be cached
+ */
+int local_consumer(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
+                   struct ccnl_pkt_s *pkt);
+
 /**
  * @brief May be defined for a particular caching strategy
  */
@@ -108,7 +113,12 @@ static xtimer_t _ageing_timer = { .target = 0, .long_target = 0 };
 /**
  * local producer function defined by the application
  */
-static ccnl_producer_func _prod_func = NULL;
+static ccnl_local_func _prod_func = NULL;
+
+/**
+ * local consumer function defined by the application
+ */
+static ccnl_local_func _cons_func = NULL;
 
 /**
  * caching strategy removal function
@@ -630,9 +640,15 @@ struct ccnl_interest_s
 }
 
 void
-ccnl_set_local_producer(ccnl_producer_func func)
+ccnl_set_local_producer(ccnl_local_func func)
 {
     _prod_func = func;
+}
+
+void
+ccnl_set_local_consumer(ccnl_local_func func)
+{
+    _cons_func = func;
 }
 
 void
@@ -647,6 +663,16 @@ local_producer(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
 {
     if (_prod_func) {
         return _prod_func(relay, from, pkt);
+    }
+    return 0;
+}
+
+int
+local_consumer(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
+                   struct ccnl_pkt_s *pkt)
+{
+    if (_cons_func) {
+        return _cons_func(relay, from, pkt);
     }
     return 0;
 }
