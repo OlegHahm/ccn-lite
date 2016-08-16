@@ -464,6 +464,10 @@ ccnl_interest_propagate(struct ccnl_relay_s *ccnl, struct ccnl_interest_s *i)
         return;
     DEBUGMSG_CORE(DEBUG, "ccnl_interest_propagate\n");
 
+    if (local_forwarder(ccnl, i)) {
+        return;
+    }
+
     // CONFORM: "A node MUST implement some strategy rule, even if it is only to
     // transmit an Interest Message on all listed dest faces in sequence."
     // CCNL strategy: we forward on all FWD entries with a prefix match

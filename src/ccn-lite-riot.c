@@ -75,6 +75,11 @@ int local_producer(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
                    struct ccnl_pkt_s *pkt);
 
 /**
+ * @brief May be defined for a particular forwarding decision
+ */
+int local_forwarder(struct ccnl_relay_s *relay, struct ccnl_interest_s *i);
+
+/**
  * @brief May be defined for a particular caching strategy
  */
 int cache_strategy_remove(struct ccnl_relay_s *relay, struct ccnl_content_s *c);
@@ -108,6 +113,11 @@ static xtimer_t _ageing_timer = { .target = 0, .long_target = 0 };
  * local producer function defined by the application
  */
 static ccnl_producer_func _prod_func = NULL;
+
+/**
+ * local forwarder function defined by the application
+ */
+static ccnl_forwarder_func _fwd_func = NULL;
 
 /**
  * caching strategy removal function
@@ -635,6 +645,12 @@ ccnl_set_local_producer(ccnl_producer_func func)
 }
 
 void
+ccnl_set_local_forwarder(ccnl_forwarder_func func)
+{
+    _fwd_func = func;
+}
+
+void
 ccnl_set_cache_strategy_remove(ccnl_cache_strategy_func func)
 {
     _cs_remove_func = func;
@@ -646,6 +662,15 @@ local_producer(struct ccnl_relay_s *relay, struct ccnl_face_s *from,
 {
     if (_prod_func) {
         return _prod_func(relay, from, pkt);
+    }
+    return 0;
+}
+
+int
+local_forwarder(struct ccnl_relay_s *relay, struct ccnl_interest_s *i)
+{
+    if (_fwd_func) {
+        return _fwd_func(relay, i);
     }
     return 0;
 }
