@@ -140,6 +140,9 @@ OMNET_DEPS = ccnl-core.c ccnl-core-fwd.c ccnl-core.h ccnl-core-util.c ccnl-defs.
 all: ${PROGS}
 	$(MAKE) -C util
 
+lib-cs.a: ccnl-cs.c ccnl-cs.h
+	${CC} -o $@ -c ccnl-cs.c
+
 lib-ccn-lite.a: ccn-lite-riot.c \
 	${SUITE_LIBS} ${CCNL_CORE_LIB} ${CCNL_PLATFORM_LIB}
 	${CC} -o $@ ${RIOT_CFLAGS} ${CCNLCFLAGS} -c $<
@@ -173,9 +176,9 @@ ccn-lite-relay-nack: ${CCNL_RELAY_LIB}
 
 ccn-lite-simu: ccn-lite-simu.c  ${SUITE_LIBS} \
 	${CCNL_CORE_LIB} ${CCNL_PLATFORM_LIB} \
-	ccnl-simu-client.c
+	ccnl-simu-client.c lib-cs.a
 	${EXTMAKE}
-	${CC} -o $@ ${CCNLCFLAGS} $< ${EXTLIBS}
+	${CC} -o $@ ${CCNLCFLAGS} $< lib-cs.a ${EXTLIBS}
 	@${CREATE_BIN}
 
 ccn-lite-omnet:  ${OMNET_DEPS}

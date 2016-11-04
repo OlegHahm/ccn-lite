@@ -20,6 +20,8 @@
  * 2013-03-30 created
  */
 
+#include <sys/socket.h>
+#include "ccnl-defs.h"
 #include "ccnl-core.h"
 
 struct ccnl_content_s*

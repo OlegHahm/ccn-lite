@@ -28,7 +28,6 @@ struct ccnl_content_s*
 ccnl_content_remove(struct ccnl_relay_s *ccnl, struct ccnl_content_s *c)
 {
     struct ccnl_content_s *c2;
-    DEBUGMSG_CORE(TRACE, "ccnl_content_remove\n");
 
     c2 = c->next;
     DBL_LINKED_LIST_REMOVE(ccnl->contents, c);
