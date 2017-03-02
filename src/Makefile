@@ -219,8 +219,8 @@ ccn-lite-lnxkernel:
 	$(MAKE) modules
 #   rm -rf $@.o $@.mod.* .$@* .tmp_versions modules.order Module.symvers
 
-modules: ccn-lite-lnxkernel.c  ${SUITE_LIBS} \
-    ${CCNL_CORE_LIB} ${CCNL_PLATFORM_LIB} ccnl-ext-crypto.c
+modules: platforms/ccn-lite-lnxkernel.c  ${SUITE_LIBS} \
+    ${CCNL_CORE_LIB} ${CCNL_PLATFORM_LIB} ext/ccnl-ext-crypto.c
 	$(MAKE) -C /lib/modules/`uname -r`/build M=`pwd` V=1 modules
 
 datastruct.pdf: datastruct.dot
