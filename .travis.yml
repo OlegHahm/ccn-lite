@@ -7,7 +7,6 @@ jdk:
 
 os:
     - linux
-    - osx
 
 compiler:
     - clang
@@ -15,8 +14,7 @@ compiler:
 
 branches:
     only:
-        - master
-        - dev-master
+        - refactor 
 
 env:
     - CCNL_HOME="/home/travis/build/cn-uofbasel/ccn-lite" PATH=$PATH:"$CCNL_HOME/bin"
