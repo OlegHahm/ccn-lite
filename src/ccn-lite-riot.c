@@ -303,7 +303,7 @@ ccnl_open_netif(kernel_pid_t if_pid, gnrc_nettype_t netreg_type)
     gnrc_netapi_set(if_pid, NETOPT_PROTO, 0, &netreg_type, sizeof(gnrc_nettype_t));
     /* register for this nettype */
     _ccnl_ne.demux_ctx =  GNRC_NETREG_DEMUX_CTX_ALL;
-    _ccnl_ne.pid = _ccnl_event_loop_pid;
+    _ccnl_ne.target.pid = _ccnl_event_loop_pid;
     return gnrc_netreg_register(netreg_type, &_ccnl_ne);
 }
 
